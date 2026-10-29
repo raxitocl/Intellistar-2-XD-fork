@@ -4,9 +4,22 @@ Aplicación web y de escritorio que emula la presentación gráfica y sonora del
 
 ## ¡Puedes verlo en acción aca! -> https://raxitocl.github.io/Intellistar-2-XD-fork/
 
+---
+
 ## 📝 Registro de Actualizaciones (Changelog)
 
 ### [Próxima Versión / En Desarrollo - Broadcast Edition]
+
+- **Restauración Auténtica de Pantalla de Inicio (Intro + Crawl Sincrónico):**
+  - Solución definitiva al bloqueo que causaba una pantalla vacía en el arranque; ahora `#content-container` se expande de inmediato (`top: 225px; height: 590px`).
+  - Despliegue instantáneo del saludo *"HELLO [CIUDAD]"* junto al logotipo oficial *"Local on the 8s"* y el cintillo inferior `#crawler-container` deslizando texto desde el segundo 0.
+  - Sintonización de la duración de la intro a 6.5 segundos para acompañar el jingle musical oficial y la locución vocal TTS en español.
+  - Transición limpia a las 6.5s hacia la diapositiva *Now* con ocultamiento ordenado de `#greeting-page`.
+- **Carrusel Meteorológico de Ciudades en el Ticker Inferior (10s):**
+  - Activación inmediata y autónoma de la rotación cada 10 segundos en la barra inferior Lower Third.
+  - Consulta multi-coordenada por lotes (Open-Meteo) para las principales ciudades del país correspondiente a la ubicación elegida (ej. Arica, Iquique, Antofagasta, Calama, etc.).
+  - Soporte de día/noche con `is_day` para iconografía animada de Meteocons e indicador de viento/rango de temperatura en vivo.
+
 - **Nueva Iconografía Animada Meteocons (Variante Fill):**
   - Actualización completa de los 48 estados meteorológicos por los iconos vectoriales libres de `basmilius/meteocons` en formato SVG animado (SMIL nativo).
   - Descarte de animaciones CSS externas artificiales, aprovechando el movimiento vectorial nativo autónomo de cada icono.
@@ -19,7 +32,7 @@ Aplicación web y de escritorio que emula la presentación gráfica y sonora del
   - Solución al bloqueo de pantalla en blanco permitiendo la entrada fluida de `current-page` y proveedor `twc`/`openmeteo` de fábrica sin alertas de claves faltantes.
 - **Barra Inferior Lower Third Auténtica:**
   - Banda superior con ticker / crawl secundario independiente y configurable.
-  - Bloque inferior con logotipo oficial de *The Weather Channel*, reloj digital en tiempo real (`HH:mm`), mini cápsula climática con icono y rango térmico, y métricas de viento.
+  - Bloque inferior con logotipo oficial de _The Weather Channel_, reloj digital en tiempo real (`HH:mm`), mini cápsula climática con icono y rango térmico, y métricas de viento.
 - **Rediseño Fiel de Pantalla de Identificación (Headend ID):**
   - Réplica exacta de la cabecera institucional oficial con logotipo "Local on the 8s" e `INTELLISTAR 2 XD`.
   - Caja central estilo broadcast con operador configurable (`Spectrum`, `HD channel 211`), ciudad, ID meteorológico y fecha/hora formateada.
@@ -32,6 +45,7 @@ Aplicación web y de escritorio que emula la presentación gráfica y sonora del
   - Adaptación de capas Leaflet con `maxNativeZoom: 6` para visualización fluida sin errores de límites de zoom en RainViewer API fuera de EE.UU.
 
 ### [Versión 2.0.0] - Modernización Integral y WebApp
+
 - **Soporte de WebApp de Escritorio con Electron:** Modos ventana, sin bordes y pantalla completa (`F11`), con panel de configuración on-demand (`Ctrl+,` / `F2`).
 - **Servidor Web Local en Node.js:** Ejecución en red local mediante `npm start` con cero dependencias.
 - **Compatibilidad con OpenWeatherMap One Call API 4.0 y Google Maps Platform Weather API.**

@@ -124,10 +124,10 @@ function setLowerThirdBar(){
   // Viento
   var ltWind = getElement('lt-wind-val');
   if (ltWind) {
-    var wSpd = windSpeed || "0";
-    var wDir = windDirection || "";
-    var unitStr = CONFIG.units === 'm' ? 'km/h' : 'mph';
-    ltWind.innerText = wSpd + ' ' + unitStr + (wDir ? ' ' + wDir : '');
+    var wSpd = (typeof windSpeed !== 'undefined' && windSpeed) ? windSpeed : "CALMA";
+    var wDir = (typeof windDirection !== 'undefined' && windDirection) ? windDirection : "";
+    var unitStr = (window.CONFIG && CONFIG.units === 'e') ? 'mph' : 'km/h';
+    ltWind.innerText = String(wSpd).includes(unitStr) ? wSpd : (wSpd + ' ' + unitStr + (wDir ? ' ' + wDir : ''));
   }
 
   // Ticker Secundario

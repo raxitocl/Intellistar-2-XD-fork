@@ -11,6 +11,7 @@ var currentTemperature;
 var currentIcon;
 var currentCondition;
 var windSpeed;
+var windDirection = "";
 var gusts;
 var feelsLike;
 var visibility;

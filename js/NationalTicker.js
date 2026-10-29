@@ -144,7 +144,7 @@
       const isMetric = (window.CONFIG && window.CONFIG.units === 'e') ? false : true;
       const unitParam = isMetric ? '&wind_speed_unit=kmh' : '&temperature_unit=fahrenheit&wind_speed_unit=mph';
 
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto${unitParam}`;
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&current=temperature_2m,is_day,weather_code,wind_speed_10m,wind_direction_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto${unitParam}`;
 
       try {
         const res = await fetch(url);

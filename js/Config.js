@@ -71,8 +71,11 @@ window.CONFIG = {
     CONFIG.countryCode = loc.countryCode || 'CL';
     CONFIG.unitField = CONFIG.units === 'm' ? 'metric' : 'imperial';
 
-    // Iniciar consulta meteorológica y presentación
+    // Iniciar ticker regional y consulta meteorológica
     hideSettings();
+    if (typeof NationalTicker !== 'undefined' && NationalTicker.init) {
+      NationalTicker.init();
+    }
     if (typeof fetchCurrentWeather === 'function') {
       fetchCurrentWeather();
     }

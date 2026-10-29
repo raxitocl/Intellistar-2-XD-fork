@@ -131,8 +131,16 @@ function setInformation(){
   createLogoElements();
   setCurrentConditions();
   setHeadendIdPage();
-  if (typeof setLowerThirdBar === 'function') setLowerThirdBar();
-  if (typeof NationalTicker !== 'undefined' && NationalTicker.init) NationalTicker.init();
+  try {
+    if (typeof setLowerThirdBar === 'function') setLowerThirdBar();
+  } catch(e) {
+    console.warn("setLowerThirdBar warning:", e);
+  }
+  try {
+    if (typeof NationalTicker !== 'undefined' && NationalTicker.init) NationalTicker.init();
+  } catch(e) {
+    console.warn("NationalTicker warning:", e);
+  }
   setTimelineEvents();
   setMainBackground();
   hideSettings();
@@ -218,6 +226,8 @@ function hideSettings(){
 }
 
 function executeGreetingPage(){
+  var gp = getElement('greeting-page');
+  if (gp) gp.style.display = 'block';
   getElement('background-image').classList.remove("below-screen");
   getElement('content-container').classList.add('shown');
   getElement('infobar-twc-logo').classList.add('shown');
@@ -226,11 +236,15 @@ function executeGreetingPage(){
   getElement('greeting-text').classList.add('shown');
   getElement('local-logo-container').classList.add("shown");
 
+  // Iniciar el crawl inferior sincrónicamente con la intro
+  showCrawl();
+
   if (window.TTSNarration) {
     TTSNarration.speak('greeting');
   }
 
-  setTimeout(clearGreetingPage, 2500);
+  // 6.5 segundos para acompañar el jingle completo y la locución TTS
+  setTimeout(clearGreetingPage, 6500);
 }
 
 function clearGreetingPage(){
@@ -242,10 +256,15 @@ function clearGreetingPage(){
   getElement("hello-location-container").classList.add("hidden");
   getElement("local-logo-container").classList.add("hidden");
 
+  // Tras completarse la animación de salida (600ms), ocultar greeting-page
+  setTimeout(function() {
+    var gp = getElement('greeting-page');
+    if (gp) gp.style.display = 'none';
+  }, 600);
+
   schedulePages();
   loadInfoBar();
   revealTimeline();
-  setTimeout(showCrawl, 3000);
 }
 
 // Set start and end times for every sub page.
@@ -632,14 +651,23 @@ function resetVisualState(){
   });
 
   // Reset greeting page components
-  var helloLoc = getElement("hello-location-container");
-  var helloText = getElement("hello-text-container");
-  var greetText = getElement("greeting-text-container");
-  var localLogo = getElement("local-logo-container");
-  if (helloLoc) helloLoc.classList.remove("hidden");
-  if (helloText) helloText.classList.remove("hidden");
-  if (greetText) greetText.classList.remove("hidden");
-  if (localLogo) localLogo.classList.remove("hidden");
+  var gp = getElement("greeting-page");
+  if (gp) gp.style.display = 'block';
+  var helloLocCont = getElement("hello-location-container");
+  var helloTextCont = getElement("hello-text-container");
+  var greetTextCont = getElement("greeting-text-container");
+  var localLogoCont = getElement("local-logo-container");
+  if (helloLocCont) helloLocCont.classList.remove("hidden");
+  if (helloTextCont) helloTextCont.classList.remove("hidden");
+  if (greetTextCont) greetTextCont.classList.remove("hidden");
+  if (localLogoCont) localLogoCont.classList.remove("hidden", "shown");
+
+  var helloLocText = getElement("hello-location-text");
+  var helloTextEl = getElement("hello-text");
+  var greetTextEl = getElement("greeting-text");
+  if (helloLocText) helloLocText.classList.remove("shown");
+  if (helloTextEl) helloTextEl.classList.remove("shown");
+  if (greetTextEl) greetTextEl.classList.remove("shown", "hidden");
 
   // Reset Infobar state
   ['infobar-twc-logo', 'infobar-local-logo', 'infobar-location-container', 'infobar-time-container'].forEach(id => {
