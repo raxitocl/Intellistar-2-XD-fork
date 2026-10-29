@@ -258,3 +258,4 @@
 
   window.NationalTicker = NationalTicker;
 })();
+
