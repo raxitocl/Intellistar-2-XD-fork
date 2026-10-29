@@ -53,7 +53,28 @@ function preLoadMusic(){
   // Pistas de música disponibles en assets/music: 2.wav a 12.wav
   var index = Math.floor(Math.random() * 11) + 2;
   music = new Audio("assets/music/" + index + ".wav");
+  music.volume = 0.45;
+  jingle.volume = 0.70;
 }
+
+window.setMusicVolume = function(targetVol, durationMs = 300) {
+  if (!music) return;
+  if (window._musicFadeInterval) {
+    clearInterval(window._musicFadeInterval);
+    window._musicFadeInterval = null;
+  }
+  var startVol = music.volume;
+  var startTime = performance.now();
+  window._musicFadeInterval = setInterval(function() {
+    var elapsed = performance.now() - startTime;
+    var progress = Math.min(1, elapsed / durationMs);
+    music.volume = Math.max(0, Math.min(1, startVol + (targetVol - startVol) * progress));
+    if (progress >= 1) {
+      clearInterval(window._musicFadeInterval);
+      window._musicFadeInterval = null;
+    }
+  }, 25);
+};
 
 /* Set the timeline page order depending on time of day, alerts, and headend ID configuration */
 function scheduleTimeline(){
@@ -110,6 +131,7 @@ function setInformation(){
   createLogoElements();
   setCurrentConditions();
   setHeadendIdPage();
+  if (typeof setLowerThirdBar === 'function') setLowerThirdBar();
   setTimelineEvents();
   setMainBackground();
   hideSettings();
@@ -169,8 +191,7 @@ function checkStormMusic(){
 }
 
 function startAnimation(){
-  setInitialPositionCurrentPage();
-
+  // Eliminada invocación prematura de setInitialPositionCurrentPage para evitar solapamiento con greeting-page
   jingle.play().catch(e => console.warn("Jingle autoplay notice:", e));
   setTimeout(startMusic, 5000);
   executeGreetingPage();
@@ -183,8 +204,16 @@ function startMusic(){
 }
 
 function hideSettings(){
-  getElement('settings-prompt').classList.add('hide');
-  getElement('settings-container').style.pointerEvents = 'none';
+  var prompt = getElement('settings-prompt');
+  var container = getElement('settings-container');
+  if (prompt) {
+    prompt.classList.add('hide');
+    prompt.style.pointerEvents = '';
+  }
+  if (container) {
+    container.classList.add('hidden');
+    container.style.pointerEvents = '';
+  }
 }
 
 function executeGreetingPage(){
@@ -296,6 +325,15 @@ function executePage(pageIndex, subPageIndex){
     if (window.TTSNarration) TTSNarration.speak('outlook');
   }
   else if(currentSubPageName == 'headend-id-page'){
+    var p7 = getElement('7day-page');
+    if (p7) p7.style.left = '-101%';
+    var fl = getElement('forecast-left-container');
+    if (fl) fl.classList.add('hidden');
+    var fr = getElement('forecast-right-container');
+    if (fr) fr.classList.add('hidden');
+    var ot = getElement('outlook-titlebar');
+    if (ot) ot.classList.add('hidden');
+    if (typeof setHeadendIdPage === 'function') setHeadendIdPage();
     if (window.TTSNarration) TTSNarration.speak('idScreen');
   }
 }
@@ -308,6 +346,15 @@ function clearPage(pageIndex, subPageIndex){
 
   var isNewPage = subPageCount-1 == subPageIndex;
   var isLastPage = pageIndex >= pageOrder.length-1 && subPageIndex >= pageOrder[pageOrder.length-1].subpages.length-1;
+
+  if (currentSubPageName === '7day-page') {
+    var fl = getElement('forecast-left-container');
+    if (fl) fl.classList.add('hidden');
+    var fr = getElement('forecast-right-container');
+    if (fr) fr.classList.add('hidden');
+    var ot = getElement('outlook-titlebar');
+    if (ot) ot.classList.add('hidden');
+  }
 
   if(isNewPage && !isLastPage){
     resetProgressBar();
@@ -375,7 +422,8 @@ async function startRadar(){
         var radarUrl = rvData.host + latest.path + '/256/{z}/{x}/{y}/2/1_1.png';
         L.tileLayer(radarUrl, {
           opacity: 0.75,
-          maxZoom: 12,
+          maxNativeZoom: 6,
+          maxZoom: 18,
           zIndex: 10
         }).addTo(activeRadarMap);
       }
@@ -421,7 +469,8 @@ async function startZoomedRadar(){
         var radarUrl = rvData.host + latest.path + '/256/{z}/{x}/{y}/2/1_1.png';
         L.tileLayer(radarUrl, {
           opacity: 0.75,
-          maxZoom: 12,
+          maxNativeZoom: 6,
+          maxZoom: 18,
           zIndex: 10
         }).addTo(zoomedMap);
       }
@@ -642,6 +691,12 @@ function setClockTime(){
 
   var finalString = h + ":" + m;
   getElement("infobar-time-text").innerHTML = finalString;
+  var ltClock = getElement('lower-third-clock');
+  if (ltClock) {
+    var realHrs = currentTime.getHours();
+    var padHrs = realHrs < 10 ? '0' + realHrs : realHrs;
+    ltClock.innerText = padHrs + ':' + m;
+  }
 
   setTimeout(setClockTime, 1000);
 }
@@ -654,23 +709,53 @@ function animateValue(id, start, end, duration, pad) {
   if (isNaN(numStart)) numStart = 0;
   if (isNaN(numEnd)) numEnd = 0;
 
+  var formatVal = function(v) {
+    return (typeof v.pad === 'function' && pad) ? v.pad(pad) : v;
+  };
+
   if (numStart === numEnd) {
-    obj.innerHTML = numEnd.pad(pad);
+    obj.innerHTML = formatVal(numEnd);
     return;
   }
-  var range = numEnd - numStart;
-  var current = numStart;
-  var increment = numEnd > numStart ? 1 : -1;
-  var stepTime = Math.abs(Math.floor(duration / (range || 1)));
-  if (stepTime < 10) stepTime = 10;
-  var timer = setInterval(function() {
-      current += increment;
-      obj.innerHTML = current.pad(pad);
-      if (current == numEnd) {
-          clearInterval(timer);
-      }
-  }, stepTime);
+  var startTime = performance.now();
+  var animDuration = Math.min(duration || 1200, 1400);
+
+  function step(now) {
+    var elapsed = now - startTime;
+    var progress = Math.min(1, elapsed / animDuration);
+    var ease = 1 - Math.pow(1 - progress, 3); // Deceleración cúbica suave
+    var current = Math.round(numStart + (numEnd - numStart) * ease);
+    obj.innerHTML = formatVal(current);
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    } else {
+      obj.innerHTML = formatVal(numEnd);
+    }
+  }
+  requestAnimationFrame(step);
 }
+
+window.showApiToast = function(message, type) {
+  var toast = getElement('api-toast-notification');
+  var msgEl = getElement('api-toast-message');
+  var iconEl = getElement('api-toast-icon');
+  if (!toast || !msgEl) {
+    console.warn("API Notification:", message);
+    return;
+  }
+  msgEl.innerText = message;
+  if (iconEl) {
+    iconEl.innerText = type === 'error' ? '❌' : '⚠️';
+  }
+  toast.classList.remove('api-toast-hidden');
+  toast.classList.add('api-toast-visible');
+
+  if (window._apiToastTimer) clearTimeout(window._apiToastTimer);
+  window._apiToastTimer = setTimeout(function() {
+    toast.classList.remove('api-toast-visible');
+    toast.classList.add('api-toast-hidden');
+  }, 4500);
+};
 
 /**
  * Cálculo del color del dial circular según los umbrales de IntelliStar 2 XD:

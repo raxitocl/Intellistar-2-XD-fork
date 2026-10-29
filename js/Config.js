@@ -21,6 +21,9 @@ window.CONFIG = {
   idScreenPosition: 'end', // 'end' | 'start' | 'none'
   sponsorBanner: true,
   sponsorTitle: 'LOCAL ON THE 8s',
+  cableProvider: 'Spectrum',
+  cableChannel: 'HD channel 211',
+  secondaryTickerText: 'The Weather Channel - Local on the 8s | Transmisión Continua las 24 Horas',
 
   secrets: {
     twcAPIKey: '71f92ea9dd2f4790b92ea9dd2f779061',
@@ -200,6 +203,25 @@ window.CONFIG = {
       localStorage.setItem('loop', CONFIG.loop ? 'y' : 'n');
     }
 
+    // Parámetros de Operador de Cable y Ticker Secundario
+    const cableProvInput = document.getElementById('cable-provider-input');
+    if (cableProvInput && cableProvInput.value.trim()) {
+      CONFIG.cableProvider = cableProvInput.value.trim();
+      localStorage.setItem('cableProvider', CONFIG.cableProvider);
+    }
+
+    const cableChanInput = document.getElementById('cable-channel-input');
+    if (cableChanInput && cableChanInput.value.trim()) {
+      CONFIG.cableChannel = cableChanInput.value.trim();
+      localStorage.setItem('cableChannel', CONFIG.cableChannel);
+    }
+
+    const secTickerInput = document.getElementById('secondary-ticker-input');
+    if (secTickerInput && secTickerInput.value.trim()) {
+      CONFIG.secondaryTickerText = secTickerInput.value.trim();
+      localStorage.setItem('secondaryTickerText', CONFIG.secondaryTickerText);
+    }
+
     // Aplicar cambios en caliente
     hideSettings();
     if (typeof hotReloadPresentation === 'function') {
@@ -225,6 +247,9 @@ window.CONFIG = {
     if (localStorage.getItem('googleApiKey')) CONFIG.secrets.googleApiKey = localStorage.getItem('googleApiKey');
     if (localStorage.getItem('owmApiKey')) CONFIG.secrets.owmApiKey = localStorage.getItem('owmApiKey');
     if (localStorage.getItem('twcAPIKey')) CONFIG.secrets.twcAPIKey = localStorage.getItem('twcAPIKey');
+    if (localStorage.getItem('cableProvider')) CONFIG.cableProvider = localStorage.getItem('cableProvider');
+    if (localStorage.getItem('cableChannel')) CONFIG.cableChannel = localStorage.getItem('cableChannel');
+    if (localStorage.getItem('secondaryTickerText')) CONFIG.secondaryTickerText = localStorage.getItem('secondaryTickerText');
 
     // 1. Título y Contenedor Principal
     const title = document.createElement('div');
@@ -618,6 +643,47 @@ window.CONFIG = {
     loopLabel.appendChild(document.createTextNode('Repetir en bucle (Loop continuo)'));
     advContainer.appendChild(loopLabel);
 
+    // Ticker Secundario Independiente (Lower Third)
+    const secTickerLabel = document.createElement('div');
+    secTickerLabel.classList.add('strong-text', 'settings-text');
+    secTickerLabel.style.marginTop = '10px';
+    secTickerLabel.innerText = 'Texto del Ticker Secundario (Banda Superior Lower Third)';
+    const secTickerInput = document.createElement('input');
+    secTickerInput.type = 'text';
+    secTickerInput.id = 'secondary-ticker-input';
+    secTickerInput.classList.add('settings-input');
+    secTickerInput.placeholder = 'Mensaje para el cintillo superior...';
+    secTickerInput.value = CONFIG.secondaryTickerText || '';
+    advContainer.appendChild(secTickerLabel);
+    advContainer.appendChild(secTickerInput);
+
+    // Operador de Cable y Canal (Headend ID)
+    const cableProvLabel = document.createElement('div');
+    cableProvLabel.classList.add('strong-text', 'settings-text');
+    cableProvLabel.style.marginTop = '10px';
+    cableProvLabel.innerText = 'Proveedor de Cable (Headend ID)';
+    const cableProvInput = document.createElement('input');
+    cableProvInput.type = 'text';
+    cableProvInput.id = 'cable-provider-input';
+    cableProvInput.classList.add('settings-input');
+    cableProvInput.placeholder = 'Ej. Spectrum, VTR, Movistar';
+    cableProvInput.value = CONFIG.cableProvider || 'Spectrum';
+    advContainer.appendChild(cableProvLabel);
+    advContainer.appendChild(cableProvInput);
+
+    const cableChanLabel = document.createElement('div');
+    cableChanLabel.classList.add('strong-text', 'settings-text');
+    cableChanLabel.style.marginTop = '10px';
+    cableChanLabel.innerText = 'Canal del Cableoperador (Headend ID)';
+    const cableChanInput = document.createElement('input');
+    cableChanInput.type = 'text';
+    cableChanInput.id = 'cable-channel-input';
+    cableChanInput.classList.add('settings-input');
+    cableChanInput.placeholder = 'Ej. HD channel 211';
+    cableChanInput.value = CONFIG.cableChannel || 'HD channel 211';
+    advContainer.appendChild(cableChanLabel);
+    advContainer.appendChild(cableChanInput);
+
     content.appendChild(advContainer);
 
     // Botón Mostrar/Ocultar Opciones Avanzadas
@@ -675,9 +741,11 @@ function showSettings() {
   const container = document.getElementById('settings-container');
   const prompt = document.getElementById('settings-prompt');
   if (container) {
+    container.style.pointerEvents = 'auto';
     container.classList.remove('hidden');
   }
   if (prompt) {
+    prompt.style.pointerEvents = 'auto';
     prompt.classList.remove('hide');
   }
 }
@@ -687,9 +755,11 @@ function hideSettings() {
   const prompt = document.getElementById('settings-prompt');
   if (prompt) {
     prompt.classList.add('hide');
+    prompt.style.pointerEvents = '';
   }
   if (container) {
     container.classList.add('hidden');
+    container.style.pointerEvents = '';
   }
 }
 

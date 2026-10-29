@@ -22,25 +22,30 @@ function setHeadendIdPage(){
   var providerEl = getElement("id-provider-val");
   var timeEl = getElement("id-time-val");
 
+  // Nuevos elementos auténticos IntelliStar 2 XD (Imagen 2)
+  var hLocEl = getElement("headend-loc-text");
+  var hIdEl = getElement("headend-id-text");
+  var hProvEl = getElement("headend-provider-text");
+  var hChanEl = getElement("headend-channel-text");
+  var hTimeEl = getElement("headend-time-text");
+
   var rawCity = cityName || (CONFIG.selectedLocation ? (CONFIG.selectedLocation.city || CONFIG.selectedLocation.name) : "");
   var cleanCity = (typeof LocationSearch !== 'undefined' && LocationSearch.sanitizeCityName)
     ? LocationSearch.sanitizeCityName(rawCity)
     : rawCity.replace(/^(Provincia de|Regi[oó]n de|Comuna de|County of)\s+/i, "").replace(/,\s*$/, "").trim();
 
   var cName = countryName || (CONFIG.selectedLocation && CONFIG.selectedLocation.countryName) || (CONFIG.countryCode || "");
-  if (locEl) {
-    locEl.innerHTML = cleanCity + (cName ? ", " + cName : "");
-  }
+  var sName = stateName || (CONFIG.selectedLocation && CONFIG.selectedLocation.state) || (CONFIG.selectedLocation && CONFIG.selectedLocation.countryCode) || "";
+  
+  var fullLocationStr = cleanCity + (sName && sName !== "--" ? ", " + sName : (cName ? ", " + cName : ""));
 
-  var sName = stateName || (CONFIG.selectedLocation && CONFIG.selectedLocation.state) || (CONFIG.selectedLocation && CONFIG.selectedLocation.countryCode) || "--";
-  if (stateEl) {
-    stateEl.innerHTML = sName;
-  }
+  if (locEl) locEl.innerHTML = fullLocationStr;
+  if (stateEl) stateEl.innerHTML = sName || "--";
+  if (hLocEl) hLocEl.innerText = fullLocationStr;
 
-  var stId = stationId || (CONFIG.selectedLocation && CONFIG.selectedLocation.stationId) || ("IS2-XD-" + (cleanCity ? cleanCity.substring(0, 3).toUpperCase() : "888"));
-  if (stationEl) {
-    stationEl.innerHTML = stId;
-  }
+  var stId = stationId || (CONFIG.selectedLocation && CONFIG.selectedLocation.stationId) || "";
+  if (stationEl) stationEl.innerHTML = stId || "--";
+  if (hIdEl) hIdEl.innerText = "Local weather ID: " + (stId || "n/a");
 
   var provMap = {
     "google": "Google Maps Platform Weather API",
@@ -49,13 +54,88 @@ function setHeadendIdPage(){
     "openmeteo": "Open-Meteo High-Resolution (Free)"
   };
   var provStr = provMap[CONFIG.provider] || (CONFIG.provider ? CONFIG.provider.toUpperCase() : "The Weather Channel");
-  if (providerEl) {
-    providerEl.innerHTML = provStr;
+  if (providerEl) providerEl.innerHTML = provStr;
+
+  // Cable operator & Channel
+  var cableName = (CONFIG && CONFIG.cableProvider) ? CONFIG.cableProvider : "Spectrum";
+  var cableChan = (CONFIG && CONFIG.cableChannel) ? CONFIG.cableChannel : "HD channel 211";
+  if (hProvEl) hProvEl.innerHTML = cableName + ' <span class="headend-arrow">▶</span>';
+  if (hChanEl) hChanEl.innerText = cableChan;
+
+  // Formatear fecha y hora auténtica de emisión
+  var now = new Date();
+  var daysEn = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  var monthsEn = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  var dayName = daysEn[now.getDay()];
+  var monthName = monthsEn[now.getMonth()];
+  var dayNum = now.getDate();
+  var yearNum = now.getFullYear();
+  var hrs = now.getHours();
+  var mins = now.getMinutes();
+  var ampm = hrs >= 12 ? "PM" : "AM";
+  var hrs12 = hrs % 12 || 12;
+  var minsPad = mins < 10 ? "0" + mins : mins;
+
+  var formattedBroadcastDate = dayName + ", " + monthName + " " + dayNum + ", " + yearNum + "- " + hrs12 + ":" + minsPad + ampm;
+
+  if (timeEl) timeEl.innerHTML = now.toLocaleDateString() + " " + now.toLocaleTimeString();
+  if (hTimeEl) hTimeEl.innerText = formattedBroadcastDate;
+}
+
+function setLowerThirdBar(){
+  var rawCity = cityName || (CONFIG.selectedLocation ? (CONFIG.selectedLocation.city || CONFIG.selectedLocation.name) : "");
+  var cleanCity = (typeof LocationSearch !== 'undefined' && LocationSearch.sanitizeCityName)
+    ? LocationSearch.sanitizeCityName(rawCity)
+    : rawCity.replace(/^(Provincia de|Regi[oó]n de|Comuna de|County of)\s+/i, "").replace(/,\s*$/, "").trim();
+
+  // Reloj digital en vivo
+  var ltClock = getElement('lower-third-clock');
+  if (ltClock) {
+    var now = new Date();
+    var h = now.getHours();
+    var m = now.getMinutes();
+    var padM = m < 10 ? '0' + m : m;
+    var padH = h < 10 ? '0' + h : h;
+    ltClock.innerText = padH + ':' + padM;
   }
 
-  if (timeEl) {
-    var now = new Date();
-    timeEl.innerHTML = now.toLocaleDateString() + " " + now.toLocaleTimeString();
+  // Nombre de Ciudad
+  var ltCity = getElement('lt-city-name');
+  if (ltCity) {
+    ltCity.innerText = cleanCity || "SANTIAGO";
+  }
+
+  // Icono miniatura
+  var ltIcon = getElement('lt-weather-icon');
+  if (ltIcon) {
+    var code = (currentIcon !== undefined && currentIcon !== null) ? currentIcon : 30;
+    ltIcon.innerHTML = '<img src="assets/icons/conditions/' + code + '.svg" style="width: 34px; height: 34px; vertical-align: middle;" alt="Icon" />';
+  }
+
+  // Rango Térmico
+  var ltRange = getElement('lt-temp-range');
+  if (ltRange) {
+    var high = (outlookHigh && outlookHigh[0] !== undefined) ? outlookHigh[0] : (currentTemperature || "--");
+    var low = (outlookLow && outlookLow[0] !== undefined) ? outlookLow[0] : "--";
+    var unitSymbol = '°';
+    ltRange.innerText = high + unitSymbol + ' / ' + low + unitSymbol;
+  }
+
+  // Viento
+  var ltWind = getElement('lt-wind-val');
+  if (ltWind) {
+    var wSpd = windSpeed || "0";
+    var wDir = windDirection || "";
+    var unitStr = CONFIG.units === 'm' ? 'km/h' : 'mph';
+    ltWind.innerText = wSpd + ' ' + unitStr + (wDir ? ' ' + wDir : '');
+  }
+
+  // Ticker Secundario
+  var ltTicker = getElement('lower-third-ticker-text');
+  if (ltTicker) {
+    ltTicker.innerText = (CONFIG && CONFIG.secondaryTickerText) 
+      ? CONFIG.secondaryTickerText 
+      : 'The Weather Channel - Local on the 8s | Reportes meteorológicos continuos las 24 horas';
   }
 }
 
@@ -179,7 +259,8 @@ function setForecast(){
     if ([31, 32, 33, 34].includes(iconCode)) {
       icon.classList.add('weather-pulse');
     }
-    if ([0, 1, 2, 19, 20, 21, 22, 23, 24].includes(iconCode)) {
+    // Solo rotar ciclones, tornados y huracanes extremos; viento y niebla son estáticos
+    if ([0, 1, 2].includes(iconCode)) {
       icon.classList.add('weather-rotate');
     }
     icon.src = 'assets/icons/conditions/' + iconCode + '.svg';
@@ -209,7 +290,8 @@ function setOutlook(){
     if ([31, 32, 33, 34].includes(iconCode)) {
       icon.classList.add('weather-pulse');
     }
-    if ([0, 1, 2, 19, 20, 21, 22, 23, 24].includes(iconCode)) {
+    // Solo rotar ciclones, tornados y huracanes extremos; viento y niebla son estáticos
+    if ([0, 1, 2].includes(iconCode)) {
       icon.classList.add('weather-rotate');
     }
     icon.src = 'assets/icons/conditions/' + iconCode + '.svg';

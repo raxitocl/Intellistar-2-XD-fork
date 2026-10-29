@@ -7,7 +7,7 @@
 
 async function fetchCurrentWeather() {
   if (latitude === undefined || longitude === undefined || latitude === null || longitude === null) {
-    alert("Coordenadas no válidas.");
+    if (window.showApiToast) window.showApiToast("Coordenadas geográficas no válidas.", "error");
     console.error("Latitude and longitude must be defined.");
     return;
   }
@@ -44,13 +44,15 @@ async function fetchCurrentWeather() {
     }
   } catch (err) {
     console.warn(`Falla con el proveedor ${provider}:`, err);
-    alert(`Aviso: ${err.message || 'Error en API'}. Usando Open-Meteo como respaldo...`);
+    if (window.showApiToast) {
+      window.showApiToast(`Aviso: ${err.message || 'Error en API'}. Conmutando a Open-Meteo como respaldo...`, 'warning');
+    }
     
     try {
       await WeatherProviders.OpenMeteoProvider.fetch(latitude, longitude, CONFIG.units);
     } catch (fallbackErr) {
       console.error("Error crítico: el proveedor de respaldo también falló:", fallbackErr);
-      alert("Error al obtener información meteorológica.");
+      if (window.showApiToast) window.showApiToast("Error al obtener información meteorológica de todos los proveedores.", "error");
       return;
     }
   }

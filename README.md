@@ -2,9 +2,33 @@
 
 Aplicación web y de escritorio que emula la presentación gráfica y sonora del segmento "Local on the 8s" transmitido por **The Weather Channel** utilizando las unidades [IntelliStar 2 XD](https://en.wikipedia.org/wiki/IntelliStar2) (estilo gráfico 2019+).
 
+## ¡Puedes verlo en acción aca! -> https://raxitocl.github.io/Intellistar-2-XD-fork/
 
-¡Puedes verlo en acción aca! -> https://raxitocl.github.io/Intellistar-2-XD-fork/
----
+## 📝 Registro de Actualizaciones (Changelog)
+
+### [Próxima Versión / En Desarrollo - Broadcast Edition]
+- **Barra Inferior Lower Third Auténtica:**
+  - Banda superior con ticker / crawl secundario independiente y configurable.
+  - Bloque inferior con logotipo oficial de *The Weather Channel*, reloj digital en tiempo real (`HH:mm`), mini cápsula climática con icono y rango térmico, y métricas de viento.
+- **Rediseño Fiel de Pantalla de Identificación (Headend ID):**
+  - Réplica exacta de la cabecera institucional oficial con logotipo "Local on the 8s" e `INTELLISTAR 2 XD`.
+  - Caja central estilo broadcast con operador configurable (`Spectrum`, `HD channel 211`), ciudad, ID meteorológico y fecha/hora formateada.
+  - Emblema oficial `2i XD` con resplandor radial azul.
+- **Audio Ducking Dinámico:**
+  - Atenuación automática de la música de fondo al 18% durante la narración vocal del TTS para máxima inteligibilidad vocal, retornando al 45% al terminar.
+- **Optimización de Animaciones e Interpolación:**
+  - Transición fluida del contador de presión atmosférica en 1.2 segundos mediante interpolación temporal matemática.
+  - Supresión de rotación excesiva en iconos fijos (niebla, bruma y viento).
+- **Radar Doppler Global:**
+  - Adaptación de capas Leaflet con `maxNativeZoom: 6` para visualización fluida sin errores de límites de zoom en RainViewer API fuera de EE.UU.
+
+### [Versión 2.0.0] - Modernización Integral y WebApp
+- **Soporte de WebApp de Escritorio con Electron:** Modos ventana, sin bordes y pantalla completa (`F11`), con panel de configuración on-demand (`Ctrl+,` / `F2`).
+- **Servidor Web Local en Node.js:** Ejecución en red local mediante `npm start` con cero dependencias.
+- **Compatibilidad con OpenWeatherMap One Call API 4.0 y Google Maps Platform Weather API.**
+- **Buscador Geográfico Global con Sanitización Inteligente:** Soporte de códigos IATA/ICAO de aeropuertos, ciudades del mundo y corrección de prefijos provinciales.
+- **Dial Circular Dinámico de Temperatura:** Gradientes condicionales automáticos (azul < 5°C, naranja 6-29°C, rojo >= 30°C) y tipografía Roboto Light.
+- **Sistema de Locución TTS Multilingüe:** Narración automática con detección de idioma del sistema y plantillas configurables.
 
 ## 🌟 Nuevas Características y Mejoras Implementadas
 

@@ -11,12 +11,13 @@
   background: rgba(8, 12, 22, 0.75);
   backdrop-filter: blur(8px);
   transition: opacity 0.3s ease, visibility 0.3s ease;
+  pointer-events: auto;
 }
 
 #settings-container.hidden{
   opacity: 0;
   visibility: hidden;
-  pointer-events: none;
+  pointer-events: none !important;
 }
 
 #settings-toggle-btn{
@@ -84,6 +85,7 @@
   text-align: center;
   padding: 25px 28px;
   box-sizing: border-box;
+  pointer-events: auto;
 }
 
 #settings-prompt::-webkit-scrollbar {
@@ -104,7 +106,7 @@
 #settings-prompt.hide{
   transform: scale(0.92);
   opacity: 0;
-  pointer-events: none;
+  pointer-events: none !important;
 }
 
 #advanced-settings-options.hidden{

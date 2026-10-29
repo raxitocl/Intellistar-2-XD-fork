@@ -62,12 +62,15 @@ window.TTSNarration = {
   },
 
   /**
-   * Cancela cualquier narración en curso
+   * Cancela cualquier narración en curso y restablece el audio de fondo
    */
   cancel() {
     if (this.synth) {
       this.synth.cancel();
       this.isSpeaking = false;
+      if (typeof window.setMusicVolume === 'function') {
+        window.setMusicVolume(0.45, 300);
+      }
     }
   },
 
@@ -110,11 +113,24 @@ window.TTSNarration = {
     utterance.pitch = (window.CONFIG && window.CONFIG.ttsPitch) ? window.CONFIG.ttsPitch : 1.0;
     utterance.volume = (window.CONFIG && window.CONFIG.ttsVolume) ? window.CONFIG.ttsVolume : 1.0;
 
-    utterance.onstart = () => { this.isSpeaking = true; };
-    utterance.onend = () => { this.isSpeaking = false; };
+    utterance.onstart = () => {
+      this.isSpeaking = true;
+      if (typeof window.setMusicVolume === 'function') {
+        window.setMusicVolume(0.18, 250);
+      }
+    };
+    utterance.onend = () => {
+      this.isSpeaking = false;
+      if (typeof window.setMusicVolume === 'function') {
+        window.setMusicVolume(0.45, 400);
+      }
+    };
     utterance.onerror = (e) => {
       console.warn("TTS narration error:", e);
       this.isSpeaking = false;
+      if (typeof window.setMusicVolume === 'function') {
+        window.setMusicVolume(0.45, 400);
+      }
     };
 
     this.synth.speak(utterance);

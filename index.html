@@ -41,6 +41,12 @@
     <!--Nature Background image-->
     <div id="background-image" class="below-screen"></div>
 
+    <!-- Toast de Notificaciones de API / Estado -->
+    <div id="api-toast-notification" class="api-toast-hidden">
+      <div id="api-toast-icon">⚠️</div>
+      <div id="api-toast-message">Notificación del sistema</div>
+    </div>
+
     <!-- Top Information Bar -->
     <div id="infobar-container">
       <img id="infobar-twc-logo" src="assets/logos/twc.svg" onclick="twcLogoClick();" />
@@ -423,37 +429,68 @@
           </div>
         </div>
       </div>
-      <!-- Headend Identification Screen -->
+      <!-- Headend Identification Screen (Official IntelliStar 2 XD Broadcast Layout) -->
       <div id="headend-id-page" class="page-container regular-page-container">
-        <div>
-          <div class="page-title-bar regular-text">IntelliStar 2 XD - Local Headend ID</div>
-        </div>
-        <div class="page-content-container shaded-page-content id-page-content">
-          <div class="id-info-left">
-            <div class="id-row">
-              <span class="id-label">LOCATION:</span>
-              <span id="id-location-val" class="id-val">--</span>
-            </div>
-            <div class="id-row">
-              <span class="id-label">REGION / STATE:</span>
-              <span id="id-state-val" class="id-val">--</span>
-            </div>
-            <div class="id-row">
-              <span class="id-label">STATION / DMA ID:</span>
-              <span id="id-station-val" class="id-val">--</span>
-            </div>
-            <div class="id-row">
-              <span class="id-label">FEED PROVIDER:</span>
-              <span id="id-provider-val" class="id-val">--</span>
-            </div>
-            <div class="id-row">
-              <span class="id-label">SYSTEM TIME:</span>
-              <span id="id-time-val" class="id-val">--</span>
-            </div>
+        <!-- Official Top Header Bar -->
+        <div class="headend-header-bar">
+          <div class="headend-header-twc">
+            <span>The<br>Weather<br>Channel</span>
           </div>
-          <div class="id-logo-right">
-            <img src="assets/logos/local.svg" class="id-logo-img" alt="IntelliStar 2 XD" />
-            <div class="id-sub-emblem">IntelliStar 2 XD</div>
+          <div class="headend-header-local8s">
+            <span class="hl8-local">LOCAL</span>
+            <span class="hl8-on">ON THE</span>
+            <span class="hl8-num">8<span class="hl8-s">s</span></span>
+          </div>
+          <div class="headend-header-title">INTELLISTAR 2 XD</div>
+        </div>
+
+        <!-- Main Slate Box -->
+        <div class="headend-content-box">
+          <div class="headend-left-col">
+            <div id="headend-loc-text" class="headend-city-state">Auburn, Nebraska</div>
+            <div id="headend-id-text" class="headend-station-id">Local weather ID: n/a</div>
+            
+            <div class="headend-provider-block">
+              <div id="headend-provider-text" class="headend-provider-name">Spectrum <span class="headend-arrow">▶</span></div>
+              <div id="headend-channel-text" class="headend-channel-num">HD channel 211</div>
+            </div>
+
+            <div id="headend-time-text" class="headend-timestamp">Tuesday, April 18, 2023- 10:48AM CDT</div>
+
+            <!-- Legacy fallback placeholders (hidden) -->
+            <span id="id-location-val" style="display:none;"></span>
+            <span id="id-state-val" style="display:none;"></span>
+            <span id="id-station-val" style="display:none;"></span>
+            <span id="id-provider-val" style="display:none;"></span>
+            <span id="id-time-val" style="display:none;"></span>
+          </div>
+          
+          <div class="headend-right-col">
+            <div class="headend-emblem-glow"></div>
+            <div class="headend-emblem-container">
+              <svg class="headend-emblem-svg" viewBox="0 0 260 200" width="260" height="200">
+                <defs>
+                  <filter id="is2Glow" x="-30%" y="-30%" width="160%" height="160%">
+                    <feGaussianBlur stdDeviation="12" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                  <linearGradient id="numeralGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#3b7bd5" />
+                    <stop offset="100%" stop-color="#19488a" />
+                  </linearGradient>
+                </defs>
+                <!-- Numeral 2 in Blue Gradient with soft bloom -->
+                <path d="M 45 46 C 45 20 66 8 98 8 C 130 8 148 24 148 50 C 148 72 130 92 104 112 L 68 142 L 152 142 L 152 164 L 38 164 L 38 144 L 88 106 C 114 84 126 70 126 50 C 126 34 114 26 98 26 C 78 26 68 36 68 50 Z" fill="url(#numeralGrad)" filter="url(#is2Glow)" />
+                <!-- Dot of 'i' -->
+                <circle cx="94" cy="84" r="8.5" fill="#1b2432" />
+                <!-- Stem of 'i' -->
+                <rect x="86.5" y="99" width="15" height="42" rx="7.5" fill="#1b2432" />
+                <!-- XD Text in Heavy Black Font -->
+                <text x="160" y="136" font-family="'Roboto', 'Arial Black', sans-serif" font-weight="900" font-size="48" fill="#1b2432" letter-spacing="-1">XD</text>
+                <!-- Underline accent -->
+                <rect x="162" y="146" width="66" height="5" fill="#1b2432" rx="2" />
+              </svg>
+            </div>
           </div>
         </div>
       </div>
@@ -479,6 +516,36 @@
     <div id="updated-container">
       <img src="assets/logos/twc_color.svg" id="updated-logo">
       <div class="regular-text" id="updated-text">For more information, stay on</div>
+    </div>
+
+    <!-- Lower Third Broadcast Bar (Permanent TWC ticker bar) -->
+    <div id="lower-third-bar">
+      <!-- Upper Strip: Secondary Independent Ticker -->
+      <div id="lower-third-ticker">
+        <div id="lower-third-ticker-text" class="ticker-slide">The Weather Channel - Local on the 8s | Reportes meteorológicos continuos y alertas en vivo</div>
+      </div>
+      <!-- Lower Strip: TWC Logo, Live Clock, Mini Weather Capsule, Wind -->
+      <div id="lower-third-main">
+        <div id="lower-third-twc-logo">
+          <div class="twc-logo-micro">
+            <span>The</span>
+            <span>Weather</span>
+            <span>Channel</span>
+          </div>
+        </div>
+        <div id="lower-third-clock" class="tabular-text">12:00</div>
+        <div class="lower-third-separator"></div>
+        <div id="lower-third-weather">
+          <span id="lt-city-name">SANTIAGO</span>
+          <span id="lt-weather-icon" class="lt-icon"></span>
+          <span id="lt-temp-range" class="tabular-text">-- / --</span>
+        </div>
+        <div class="lower-third-separator"></div>
+        <div id="lower-third-wind">
+          <span class="lt-wind-label">VIENTO:</span>
+          <span id="lt-wind-val">--</span>
+        </div>
+      </div>
     </div>
 
     <!-- Text Crawl -->
