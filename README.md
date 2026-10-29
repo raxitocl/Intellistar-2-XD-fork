@@ -2,6 +2,8 @@
 
 Aplicación web y de escritorio que emula la presentación gráfica y sonora del segmento "Local on the 8s" transmitido por **The Weather Channel** utilizando las unidades [IntelliStar 2 XD](https://en.wikipedia.org/wiki/IntelliStar2) (estilo gráfico 2019+).
 
+
+¡Puedes verlo en acción aca! -> https://raxitocl.github.io/Intellistar-2-XD-fork/
 ---
 
 ## 🌟 Nuevas Características y Mejoras Implementadas
