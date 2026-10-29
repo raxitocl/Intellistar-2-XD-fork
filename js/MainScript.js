@@ -26,7 +26,7 @@ const MULTIPLE = [
   {name: "Beyond", subpages: [{name: "tomorrow-page", duration: 8000}, {name: "7day-page", duration: 13000}]}
 ];
 
-const WEEKDAY = ["SUN", "MON", "TUES", "WED", "THU", "FRI", "SAT"];
+// WEEKDAY inicializado globalmente en Conditions.js
 
 const jingle = new Audio("assets/music/jingle.wav");
 
@@ -132,6 +132,7 @@ function setInformation(){
   setCurrentConditions();
   setHeadendIdPage();
   if (typeof setLowerThirdBar === 'function') setLowerThirdBar();
+  if (typeof NationalTicker !== 'undefined' && NationalTicker.init) NationalTicker.init();
   setTimelineEvents();
   setMainBackground();
   hideSettings();
@@ -288,12 +289,8 @@ function executePage(pageIndex, subPageIndex){
   }
 
   currentSubPageElement.style.transitionDelay = '0.5s';
-  if(pageIndex === 0 && subPageIndex == 0){
-    currentSubPageElement.style.top = '0px';
-  }
-  else{
-    currentSubPageElement.style.left = '0px';
-  }
+  currentSubPageElement.style.left = '0px';
+  currentSubPageElement.style.top = '0px';
 
   var isLastPage = pageIndex >= pageOrder.length-1 && subPageIndex >= pageOrder[pageOrder.length-1].subpages.length-1;
   if(isLastPage)
@@ -391,6 +388,10 @@ async function startRadar(){
   if (activeRadarMap) {
     try { activeRadarMap.remove(); } catch(e){}
     activeRadarMap = null;
+  }
+
+  if (typeof NationalTicker !== 'undefined' && NationalTicker.stop) {
+    NationalTicker.stop();
   }
 
   if (typeof L === 'undefined') {
@@ -649,6 +650,10 @@ function resetVisualState(){
   if (activeRadarMap) {
     try { activeRadarMap.remove(); } catch(e){}
     activeRadarMap = null;
+  }
+
+  if (typeof NationalTicker !== 'undefined' && NationalTicker.stop) {
+    NationalTicker.stop();
   }
 
   currentLogoIndex = 0;

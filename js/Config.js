@@ -14,7 +14,7 @@ window.CONFIG = {
   units: 'm', // 'm' = Métrico (°C, km/h), 'e' = Imperial (°F, mph)
   unitField: 'metric',
   loop: true, // Por defecto en bucle continuo para experiencia broadcast
-  provider: 'google', // 'google' | 'openweathermap' | 'twc' | 'openmeteo'
+  provider: 'twc', // 'twc' (predeterminado con clave verificada) | 'openmeteo' | 'google' | 'openweathermap'
   
   ttsEnabled: true,
   ttsLanguage: 'auto', // 'auto' | 'es' | 'en'

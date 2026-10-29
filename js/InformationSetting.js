@@ -255,14 +255,7 @@ function setForecast(){
     var icon = new Image();
     icon.style.width = '100%';
     icon.style.height = '100%';
-    icon.classList.add('weather-animated');
-    if ([31, 32, 33, 34].includes(iconCode)) {
-      icon.classList.add('weather-pulse');
-    }
-    // Solo rotar ciclones, tornados y huracanes extremos; viento y niebla son estáticos
-    if ([0, 1, 2].includes(iconCode)) {
-      icon.classList.add('weather-rotate');
-    }
+    // Meteocons Fill incluye animación nativa SMIL interna autónoma
     icon.src = 'assets/icons/conditions/' + iconCode + '.svg';
     if (forecastIconElement[i]) {
       forecastIconElement[i].innerHTML = '';
@@ -286,14 +279,7 @@ function setOutlook(){
     var icon = new Image();
     icon.style.width = '100%';
     icon.style.height = '100%';
-    icon.classList.add('weather-animated');
-    if ([31, 32, 33, 34].includes(iconCode)) {
-      icon.classList.add('weather-pulse');
-    }
-    // Solo rotar ciclones, tornados y huracanes extremos; viento y niebla son estáticos
-    if ([0, 1, 2].includes(iconCode)) {
-      icon.classList.add('weather-rotate');
-    }
+    // Meteocons Fill incluye animación nativa SMIL interna autónoma
     icon.src = 'assets/icons/conditions/' + iconCode + '.svg';
     if (iconElement) {
       iconElement.innerHTML = '';

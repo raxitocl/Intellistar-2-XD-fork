@@ -418,22 +418,22 @@ body{
 #lower-third-twc-logo{
   width: 63px;
   height: 63px;
+  min-width: 63px;
   background: #0057b8;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   flex-shrink: 0;
 }
 
-.twc-logo-micro{
-  color: #ffffff;
-  font-family: 'Roboto', sans-serif;
-  font-weight: 800;
-  font-size: 11px;
-  line-height: 1.1;
-  text-align: center;
-  text-transform: uppercase;
-  padding: 4px;
+.twc-logo-lower-third{
+  width: 63px;
+  height: 63px;
+  max-width: 63px;
+  max-height: 63px;
+  object-fit: contain;
+  display: block;
 }
 
 #lower-third-clock{
@@ -460,6 +460,7 @@ body{
   gap: 14px;
   padding: 0 14px;
   flex-shrink: 0;
+  transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
 #lt-city-name{
@@ -492,6 +493,7 @@ body{
   font-family: 'Roboto', sans-serif;
   font-size: 22px;
   color: #cfd8dc;
+  transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
 .lt-wind-label{
@@ -505,34 +507,11 @@ body{
   color: #ffffff;
 }
 
+.ticker-swapping{
+  opacity: 0 !important;
+  transform: translateY(-8px) !important;
+}
+
 .tabular-text{
   font-variant-numeric: tabular-nums;
-}
-
-/* Micro-Animaciones CSS para Iconos Meteorológicos */
-.weather-animated{
-  animation: weather-float 4s ease-in-out infinite;
-}
-
-@keyframes weather-float{
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
-}
-
-.weather-rotate{
-  animation: weather-rotate 20s linear infinite;
-}
-
-@keyframes weather-rotate{
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.weather-pulse{
-  animation: weather-pulse 2.5s ease-in-out infinite;
-}
-
-@keyframes weather-pulse{
-  0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 212, 59, 0.3)); }
-  50% { filter: drop-shadow(0 0 8px rgba(255, 212, 59, 0.8)); }
 }

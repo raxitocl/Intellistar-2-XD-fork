@@ -1,106 +1,41 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 17.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 200 200" enable-background="new 0 0 200 200" xml:space="preserve">
-<g id="sun">
+<svg viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="thunderstorms-night-rain" clip-path="url(#clip0_1858_9939)">
+<g id="Sky">
+<g id="Moon">
+<path id="Moon_2" d="M35.1152 34.5947C33.3777 43.1625 40.7532 51.2141 49.3135 50.7832C47.6732 55.8338 42.8891 59.4999 37.2178 59.5C30.188 59.5 24.5002 53.8786 24.5 46.959C24.5 40.7451 29.0879 35.5838 35.1152 34.5947Z" fill="url(#paint0_linear_1858_9939)" stroke="#72B9D5" stroke-linecap="round" stroke-linejoin="round"/>
+<animateTransform attributeName="transform" type="rotate" values="-6 36.9 47.0;6 36.9 47.0;-6 36.9 47.0" dur="3s" begin="0s" repeatCount="indefinite" calcMode="spline" keySplines=".42 0 .58 1; .42 0 .58 1"/></g>
+<g id="Clouds">
+<g id="Cloud">
+<path id="Cloud_2" d="M55.2625 48.4746C60.1228 40.6111 70.2976 37.38 78.8152 40.9434C87.3215 44.5023 92.1381 54.0026 89.9031 62.9648L89.7419 63.6143L90.4109 63.585C97.4205 63.2791 103.5 68.9917 103.5 76.0283C103.5 82.8395 97.7719 88.4997 90.9773 88.5H37.9539C31.1276 88.5018 25.203 83.1709 24.5593 76.3604C23.9159 69.5518 28.7371 63.2124 35.4431 61.9453L35.9265 61.8535L35.8425 61.3691C35.0258 56.6239 37.1259 51.7168 41.1052 49.0127C45.0952 46.3014 50.4461 46.1537 54.5798 48.6396L55.0027 48.8945L55.2625 48.4746Z" fill="url(#paint1_linear_1858_9939)" stroke="#E6EFFC" stroke-miterlimit="10"/>
 </g>
-<g id="clear-night">
+<animateTransform attributeName="transform" type="translate" values="0 0;0 -3;0 0" dur="3s" begin="0s" repeatCount="indefinite" calcMode="spline" keySplines=".42 0 .58 1; .42 0 .58 1"/></g>
 </g>
-<g id="mostly-sunny">
+<g id="Precipitation">
+<g id="Raindrops">
+<path id="Raindrop 1" d="M52 83V95" stroke="#0A5AD4" stroke-width="4" stroke-linecap="round"><animateTransform attributeName="transform" type="translate" values="0 0;0 20" dur="1s" begin="0s" repeatCount="indefinite" calcMode="spline" keySplines=".42 0 1 1"/><animate attributeName="opacity" values="0;1;1;0" dur="1s" begin="0s" repeatCount="indefinite" keyTimes="0;0.15;0.85;1"/></path>
+<path id="Raindrop 2" d="M64 83V95" stroke="#0A5AD4" stroke-width="4" stroke-linecap="round" opacity="0"><animateTransform attributeName="transform" type="translate" values="0 0;0 20" dur="1s" begin="0.4s" repeatCount="indefinite" calcMode="spline" keySplines=".42 0 1 1"/><animate attributeName="opacity" values="0;1;1;0" dur="1s" begin="0.4s" repeatCount="indefinite" keyTimes="0;0.15;0.85;1"/></path>
+<path id="Raindrop 3" d="M76 83V95" stroke="#0A5AD4" stroke-width="4" stroke-linecap="round" opacity="0"><animateTransform attributeName="transform" type="translate" values="0 0;0 20" dur="1s" begin="0.8s" repeatCount="indefinite" calcMode="spline" keySplines=".42 0 1 1"/><animate attributeName="opacity" values="0;1;1;0" dur="1s" begin="0.8s" repeatCount="indefinite" keyTimes="0;0.15;0.85;1"/></path>
 </g>
-<g id="mostly-clear-night">
 </g>
-<g id="fog">
+<g id="Lightning">
+<path id="Lightning Bolt" d="M71.1729 68.5L63.5566 83.041L63.1729 83.7725H75.002L56.9521 107.892L60.4893 91.0117L60.6162 90.4092H52.7041L60.3555 68.5H71.1729Z" fill="url(#paint2_linear_1858_9939)" stroke="#F6A823" stroke-miterlimit="10"><animate attributeName="opacity" values="1;1;0;1;0;1;0;1;1" dur="2s" begin="0s" repeatCount="indefinite" keyTimes="0;0.25;0.33;0.42;0.5;0.57;0.63;0.67;1"/></path>
 </g>
-<g id="wind">
 </g>
-<g id="cloudy">
-</g>
-<g id="partly-cloudy">
-</g>
-<g id="partly-cloudy-night">
-</g>
-<g id="mostly-cloudy">
-</g>
-<g id="mostly-cloudy-night">
-</g>
-<g id="default">
-</g>
-<g id="light-rain">
-</g>
-<g id="rain">
-</g>
-<g id="heavy-rain">
-</g>
-<g id="scattered-showers-night">
-</g>
-<g id="isolated-t-storms">
-</g>
-<g id="scattered-t-storms">
-</g>
-<g id="scattered-t-storms-night">
-	<g>
-		<path fill="#F9D915" d="M89.5,124.7c0-0.5-0.5-0.8-1-0.8l0,0l0,0H69.2c-0.5,0-0.8,0.3-1,0.5L60.6,146c0,0.2,0,0.2,0,0.3
-			c0,0.5,0.5,0.8,1,0.8l0,0h7.3l-6.8,19.4l0,0c0,0.2,0,0.3,0,0.3c0,0.8,0.8,1.5,2,1.5c0.7,0,1.4-0.3,1.7-0.8l0,0l22.3-29.6l0,0
-			c0-0.2,0-0.2,0-0.3c0-0.5-0.5-0.8-1-0.8l0,0l0,0h-6.8l9.1-12L89.5,124.7z"/>
-		<path fill="#6EC4E9" d="M105.3,150.2c0.4-0.9-0.2-1.9-1.2-2.2c-0.9-0.3-1.9,0-2.3,0.7h0l-19.4,24.8c-0.4,0.5-0.7,1-1,1.6
-			c-1.2,3,0.6,6.4,4,7.5c3.4,1.1,7-0.4,8.3-3.3h0l11.5-28.9L105.3,150.2L105.3,150.2z"/>
-		<path fill="#6EC4E9" d="M139.3,126.2c0.4-0.9-0.2-1.9-1.2-2.2c-0.9-0.3-1.9,0-2.3,0.7h0l-19.4,24.8c-0.4,0.5-0.7,1-1,1.6
-			c-1.2,3,0.6,6.4,4,7.5c3.4,1.1,7-0.4,8.3-3.3h0l11.5-28.9L139.3,126.2L139.3,126.2z"/>
-	</g>
-	<g>
-		<path fill="#D3D3D3" d="M186,72.2c-4.1-15.4-19.9-24.6-35.3-20.6c0,0-1.1,0.3-3.1,0.8c-4.9-18.3-21.6-31.8-41.5-31.8
-			c-15.6,0-29.3,8.3-36.8,20.8c1.1,3.7,2.6,7.3,4.6,10.8c8.1,14,22.1,23,35.6,23c2.4,0,4.7-0.3,7-0.9c0.5-0.1,1-0.2,1.5-0.2
-			c2.2,0,4.2,1.2,5.3,3.1c1.3,2.4,0.8,5.4-1.2,7.3c-3,2.8-6.3,5.2-9.8,7.3c-8.1,4.7-17.4,7.2-26.7,7.2c-19.1,0-36.9-10.3-46.4-26.8
-			c-1.1-1.9-2-3.8-2.9-5.8c-1.6,2.3-2.9,4.9-3.7,7.8c-0.8,3.1-1,6.2-0.7,9.1c-6.5,1.8-10.5,2.8-10.5,2.8c-6.1,1.6-9.8,7.9-8.1,14
-			c1.4,5.4,6.5,8.8,11.8,8.5h132.1c0,0,5.5-0.3,8.2-1C181,103.6,190.2,87.7,186,72.2z"/>
-		<path fill="#DEDDDD" d="M118,80.2c-0.6,0.2-1.3,0.3-1.9,0.4c-0.2,0-0.4,0.1-0.6,0.1c-0.4,0.1-0.9,0.1-1.4,0.2
-			c-0.2,0-0.4,0.1-0.7,0.1c-0.5,0.1-0.9,0.1-1.4,0.1c-0.2,0-0.4,0-0.5,0c-0.6,0-1.3,0.1-1.9,0.1c0,0,0,0,0,0c0,0-0.1,0-0.1,0
-			c-0.8,0-1.6,0-2.5-0.1c-0.1,0-0.3,0-0.4,0c-0.8-0.1-1.7-0.2-2.5-0.3c-0.2,0-0.3-0.1-0.5-0.1c-0.8-0.1-1.7-0.3-2.5-0.5
-			c-0.1,0-0.2,0-0.3-0.1c-0.8-0.2-1.6-0.4-2.4-0.6c-0.1,0-0.3-0.1-0.4-0.1c-0.8-0.3-1.6-0.5-2.5-0.8c-0.2-0.1-0.3-0.1-0.5-0.2
-			c-0.8-0.3-1.6-0.7-2.4-1c-0.1-0.1-0.2-0.1-0.3-0.2c-0.8-0.4-1.5-0.7-2.3-1.2c-0.1-0.1-0.2-0.1-0.3-0.2c-0.8-0.4-1.6-0.9-2.4-1.4
-			c-0.2-0.1-0.3-0.2-0.5-0.3c-0.8-0.5-1.5-1-2.3-1.5c-0.1-0.1-0.2-0.2-0.4-0.3c-0.7-0.5-1.4-1.1-2.2-1.7c-0.1-0.1-0.1-0.1-0.2-0.2
-			c-0.7-0.6-1.5-1.2-2.2-1.9c-0.1-0.1-0.3-0.3-0.4-0.4c-0.7-0.6-1.4-1.3-2-2c-0.1-0.1-0.2-0.2-0.3-0.4c-0.7-0.7-1.3-1.4-2-2.2
-			c0,0-0.1-0.1-0.1-0.1c-0.7-0.8-1.3-1.6-1.9-2.4c-0.1-0.2-0.2-0.3-0.4-0.5c-0.6-0.8-1.2-1.6-1.7-2.5c-0.1-0.2-0.2-0.3-0.3-0.5
-			c-0.6-0.9-1.1-1.8-1.7-2.7c-1.2-2-2.2-4.1-3.1-6.1c-7.7-18-5.2-37.5,6-49c-3.4,1-6.7,2.5-9.9,4.3C41.5,16,33.2,40.4,40.9,61.6
-			c0.9,2.6,2.1,5.1,3.5,7.6c0.5,0.9,1,1.7,1.6,2.5c0.2,0.2,0.3,0.5,0.5,0.7c0.4,0.6,0.8,1.2,1.3,1.8c0.2,0.2,0.3,0.4,0.5,0.7
-			c0.6,0.8,1.2,1.5,1.8,2.2c0,0,0.1,0.1,0.1,0.1c0.6,0.7,1.2,1.3,1.9,2c0.2,0.2,0.4,0.4,0.6,0.6c0.5,0.5,1,1,1.6,1.4
-			c0.2,0.2,0.4,0.3,0.6,0.5c0.7,0.6,1.4,1.2,2.2,1.8c0.1,0,0.1,0.1,0.2,0.1c0.7,0.5,1.4,1,2.1,1.5c0.2,0.1,0.5,0.3,0.7,0.4
-			c0.6,0.4,1.2,0.7,1.8,1.1c0.2,0.1,0.4,0.2,0.6,0.4c0.8,0.5,1.6,0.9,2.5,1.3c0.1,0.1,0.2,0.1,0.3,0.1c0.7,0.3,1.5,0.7,2.2,1
-			c0.3,0.1,0.5,0.2,0.8,0.3c0.7,0.3,1.3,0.5,2,0.7c0.2,0.1,0.4,0.2,0.7,0.2c0.9,0.3,1.8,0.5,2.6,0.8c0.1,0,0.3,0.1,0.4,0.1
-			c0.8,0.2,1.5,0.4,2.3,0.5c0.3,0.1,0.5,0.1,0.8,0.2c0.7,0.1,1.4,0.2,2.1,0.3c0.2,0,0.5,0.1,0.7,0.1c0.9,0.1,1.8,0.2,2.7,0.3
-			c0.2,0,0.4,0,0.5,0c0.7,0,1.5,0.1,2.3,0.1c0.3,0,0.6,0,0.9,0c0.7,0,1.4,0,2-0.1c0.2,0,0.5,0,0.7,0c0.9-0.1,1.8-0.1,2.7-0.3
-			c0.2,0,0.3-0.1,0.5-0.1c0.7-0.1,1.5-0.2,2.2-0.4c0.3-0.1,0.6-0.1,0.9-0.2c0.7-0.1,1.3-0.3,2-0.5c0.3-0.1,0.5-0.1,0.8-0.2
-			c0.9-0.2,1.8-0.5,2.7-0.8c0.1,0,0.2-0.1,0.3-0.1c0.8-0.3,1.6-0.6,2.3-0.9c0.3-0.1,0.5-0.2,0.8-0.3c0.6-0.3,1.3-0.6,1.9-0.9
-			c0.3-0.1,0.5-0.2,0.8-0.4c0.9-0.4,1.7-0.9,2.6-1.4c1.6-0.9,3.1-1.9,4.6-3C115.3,82.5,116.7,81.4,118,80.2
-			C118,80.2,118,80.2,118,80.2z"/>
-	</g>
-</g>
-<g id="strong-t-storms">
-</g>
-<g id="flurries">
-</g>
-<g id="snow">
-</g>
-<g id="heavy-snow">
-</g>
-<g id="blowing-snow">
-</g>
-<g id="scattered-snow">
-</g>
-<g id="scattered-snow-night">
-</g>
-<g id="freezing-drizzle">
-</g>
-<g id="freezing-rain">
-</g>
-<g id="wintry-mix">
-</g>
-<g id="sleet">
-</g>
-<g id="tornado">
-</g>
-<g id="hurricane">
-</g>
+<defs>
+<linearGradient id="paint0_linear_1858_9939" x1="37" y1="34" x2="37" y2="60" gradientUnits="userSpaceOnUse">
+<stop stop-color="#86C3DB"/>
+<stop offset="1" stop-color="#72B9D5"/>
+</linearGradient>
+<linearGradient id="paint1_linear_1858_9939" x1="64.0009" y1="39" x2="64.0009" y2="89" gradientUnits="userSpaceOnUse">
+<stop stop-color="#F3F7FE"/>
+<stop offset="1" stop-color="#E6EFFC"/>
+</linearGradient>
+<linearGradient id="paint2_linear_1858_9939" x1="64.528" y1="66.0377" x2="84.4144" y2="77.4572" gradientUnits="userSpaceOnUse">
+<stop stop-color="#F7B23B"/>
+<stop offset="1" stop-color="#F6A823"/>
+</linearGradient>
+<clipPath id="clip0_1858_9939">
+<rect width="128" height="128" fill="white"/>
+</clipPath>
+</defs>
 </svg>

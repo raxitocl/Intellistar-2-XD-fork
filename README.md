@@ -7,6 +7,16 @@ Aplicación web y de escritorio que emula la presentación gráfica y sonora del
 ## 📝 Registro de Actualizaciones (Changelog)
 
 ### [Próxima Versión / En Desarrollo - Broadcast Edition]
+- **Nueva Iconografía Animada Meteocons (Variante Fill):**
+  - Actualización completa de los 48 estados meteorológicos por los iconos vectoriales libres de `basmilius/meteocons` en formato SVG animado (SMIL nativo).
+  - Descarte de animaciones CSS externas artificiales, aprovechando el movimiento vectorial nativo autónomo de cada icono.
+- **Ticker Meteorológico Nacional y Regional Rotativo (10s):**
+  - Carrusel automático de 10 segundos en el Lower Third que cicla consecutivamente entre las principales ciudades del país seleccionado (Chile, EE.UU., Argentina, España, México, etc.).
+  - Consulta en lote multi-coordenada instantánea vía Open-Meteo sin consumo de cuota ni requisitos de claves API.
+- **Logotipo Oficial Corporativo de The Weather Channel:**
+  - Integración del logotipo cuadrado oficial en el Lower Third escalado estrictamente a 63px.
+- **Corrección de Arranque y Despliegue de Diapositivas:**
+  - Solución al bloqueo de pantalla en blanco permitiendo la entrada fluida de `current-page` y proveedor `twc`/`openmeteo` de fábrica sin alertas de claves faltantes.
 - **Barra Inferior Lower Third Auténtica:**
   - Banda superior con ticker / crawl secundario independiente y configurable.
   - Bloque inferior con logotipo oficial de *The Weather Channel*, reloj digital en tiempo real (`HH:mm`), mini cápsula climática con icono y rango térmico, y métricas de viento.
@@ -18,7 +28,6 @@ Aplicación web y de escritorio que emula la presentación gráfica y sonora del
   - Atenuación automática de la música de fondo al 18% durante la narración vocal del TTS para máxima inteligibilidad vocal, retornando al 45% al terminar.
 - **Optimización de Animaciones e Interpolación:**
   - Transición fluida del contador de presión atmosférica en 1.2 segundos mediante interpolación temporal matemática.
-  - Supresión de rotación excesiva en iconos fijos (niebla, bruma y viento).
 - **Radar Doppler Global:**
   - Adaptación de capas Leaflet con `maxNativeZoom: 6` para visualización fluida sin errores de límites de zoom en RainViewer API fuera de EE.UU.
 

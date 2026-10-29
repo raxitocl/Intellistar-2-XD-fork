@@ -30,3 +30,6 @@ var radarImage;
 var zoomedRadarImage;
 var alertsActive;
 var alerts = [];
+
+// Días de la semana para el pronóstico extendido (disponible globalmente)
+var WEEKDAY = window.WEEKDAY = ["SUN", "MON", "TUES", "WED", "THU", "FRI", "SAT"];
