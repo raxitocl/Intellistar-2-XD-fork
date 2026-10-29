@@ -1,5 +1,8 @@
 var zipCode;
 var cityName;
+var stateName = "";
+var countryName = "";
+var stationId = "";
 
 var longitude;
 var latitude;

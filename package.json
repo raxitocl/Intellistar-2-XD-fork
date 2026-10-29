@@ -1,0 +1,25 @@
+{
+  "name": "intellistar-2-xd-emulator",
+  "version": "2.0.0",
+  "description": "Emulador de unidad IntelliStar 2 XD de The Weather Channel con servidor local Node.js y WebApp de escritorio Electron",
+  "main": "electron-main.js",
+  "scripts": {
+    "start": "node server.js",
+    "server": "node server.js",
+    "app": "electron .",
+    "electron": "electron .",
+    "dev": "electron ."
+  },
+  "keywords": [
+    "intellistar",
+    "weather-channel",
+    "weather",
+    "emulator",
+    "electron"
+  ],
+  "author": "The Weather Channel Emulator Contributors",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^45.1.0"
+  }
+}

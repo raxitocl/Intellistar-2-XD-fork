@@ -1,19 +1,16 @@
 #current-page{
   left: 100%;
-  top: 100%;
+  top: 0px;
 }
 
 #ccicon{
-  /*width: 200px;
-  height: 200px;
-  position: relative;
-  left: 10px;
-  top: 10px;*/
+  width: 24px;
+  height: 24px;
 }
 
 #cc-container{
   float: right;
-  width: 680px;
+  width: 720px;
   height: 320px;
   top: 100px;
   position: relative;
@@ -22,34 +19,62 @@
 #cc-dial{
   width: 450px;
   height: 450px;
-  left: 50px;
+  left: 40px;
   top: 15px;
   position: relative;
 }
 
+#cc-dial-color {
+  transition: fill 0.8s ease, stroke-dashoffset 1s ease;
+}
+
+#cc-temperature-text {
+  font-family: 'Roboto', sans-serif !important;
+  font-weight: 300 !important;
+  font-size: 26px !important;
+}
+
 .cc-line-container{
   height: 80px;
-  overflow:hidden;
+  overflow: hidden;
 }
 
 .cc-vertical-group{
   height: 160px;
   position: relative;
   top: 80px;
-  transition: top .6s linear;
+  transition: top .6s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .cc-horizontal-group{
   display: flex;
+  align-items: center;
 }
 
 .cc-text{
   line-height: 80px;
-  font-size: 60px;
+  font-size: 36px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  color: #ffffff;
+}
+
+#cc-condition {
+  font-size: 42px;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 680px;
 }
 
 .cc-left{
-  width: 300px;
+  width: 330px;
+  font-size: 32px;
+  font-weight: 300;
+  color: #c0c8db;
+  letter-spacing: 1px;
 }
 
 .cc-line2{
