@@ -44,16 +44,9 @@ window.onload = function() {
   resizeWindow();
   setClockTime();
 
-  var isElectron = (typeof window.electronAPI !== 'undefined' && window.electronAPI && window.electronAPI.isElectron);
-  var hasSavedLoc = !!localStorage.getItem('lastLocationJson');
-
-  if (isElectron || hasSavedLoc) {
-    // Arranque directo broadcast sin bloqueos
-    hideSettings();
-    CONFIG.boot();
-  } else {
-    showSettings();
-  }
+  // Arranque directo broadcast de inmediato (tanto en WebApp como en navegador web)
+  hideSettings();
+  CONFIG.boot();
 };
 
 function preLoadMusic(){
@@ -760,10 +753,10 @@ function resizeWindow(){
   var scale = Math.min(window.innerWidth / originalWidth, window.innerHeight / originalHeight);
   var renderFrame = getElement('render-frame');
   if (renderFrame) {
-    renderFrame.style.transform = "scale(" + scale + ") translate(-50%, -50%)";
+    renderFrame.style.transform = "scale(" + scale + ")";
   }
-  setTimeout(resizeWindow, 1000);
 }
+window.onresize = resizeWindow;
 
 function getElement(id){
   return document.getElementById(id);
