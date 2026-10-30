@@ -4,6 +4,7 @@
   width: 1024px;
   height: 326px;
   position: absolute;
+  z-index: 40;
   opacity: 1;
   transition: top 100ms 2000ms linear, opacity 100ms 2000ms linear;
 }

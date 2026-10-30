@@ -11,22 +11,24 @@ window.TTSNarration = {
 
   defaultTemplates: {
     es: {
-      greeting: "Este es el tiempo local en los 8 para {city}.",
       now: "En este momento en nuestra zona, la temperatura es de {temperature} grados con cielo {condition}. La sensación térmica es de {feelslike} grados.",
       today: "Para el día de hoy: {narrative}",
       tonight: "Esta noche: {narrative}",
       tomorrow: "Mañana: {narrative}",
+      tomorrowNight: "Mañana por la noche: {narrative}",
       outlook: "A continuación, el pronóstico para los próximos siete días.",
-      idScreen: "Emulador IntelliStar 2 XD transmitiendo para {city}, {state}. Proveedor activo: {provider}."
+      almanac: "A continuación, el almanaque astronómico local para hoy y mañana.",
+      idScreen: "Transmisión de IntelliStar 2 XD para {city}. Operando vía {provider}."
     },
     en: {
-      greeting: "This is your local weather on the 8s for {city}.",
       now: "Currently in our area, {temperature} degrees with {condition}. The feels like temperature is {feelslike} degrees.",
       today: "For today: {narrative}",
       tonight: "Tonight: {narrative}",
       tomorrow: "Tomorrow: {narrative}",
+      tomorrowNight: "Tomorrow night: {narrative}",
       outlook: "Here is your 7-day local outlook.",
-      idScreen: "IntelliStar 2 XD headend operational for {city}, {state}. Active provider: {provider}."
+      almanac: "Here is your local astronomical almanac.",
+      idScreen: "IntelliStar 2 XD broadcast for {city}. Operating on {provider}."
     }
   },
 
@@ -103,10 +105,13 @@ window.TTSNarration = {
       .replace(/{narrative}/g, params.narrative || "")
       .replace(/{provider}/g, params.provider || (CONFIG.provider ? CONFIG.provider.toUpperCase() : "TWC"));
 
-    // Limpieza de caracteres de escape y HTML
-    text = text.replace(/<[^>]*>/g, "").replace(/\u00B0/g, " grados ").replace(/Â/g, "");
+    // Limpieza de caracteres de escape y pronunciación según idioma
+    const degWord = lang === "es" ? " grados " : " degrees ";
+    text = text.replace(/<[^>]*>/g, "").replace(/\u00B0/g, degWord).replace(/Â/g, "");
 
     const utterance = new SpeechSynthesisUtterance(text);
+    window._activeUtterance = utterance; // Previene recolección de basura prematura de V8 en Chromium/Electron
+
     if (this.selectedVoice) utterance.voice = this.selectedVoice;
     utterance.lang = lang === "es" ? "es-ES" : "en-US";
     utterance.rate = (window.CONFIG && window.CONFIG.ttsRate) ? window.CONFIG.ttsRate : 1.0;
@@ -121,6 +126,7 @@ window.TTSNarration = {
     };
     utterance.onend = () => {
       this.isSpeaking = false;
+      window._activeUtterance = null;
       if (typeof window.setMusicVolume === 'function') {
         window.setMusicVolume(0.45, 400);
       }
@@ -128,6 +134,7 @@ window.TTSNarration = {
     utterance.onerror = (e) => {
       console.warn("TTS narration error:", e);
       this.isSpeaking = false;
+      window._activeUtterance = null;
       if (typeof window.setMusicVolume === 'function') {
         window.setMusicVolume(0.45, 400);
       }

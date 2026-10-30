@@ -56,10 +56,23 @@ function setHeadendIdPage(){
   var provStr = provMap[CONFIG.provider] || (CONFIG.provider ? CONFIG.provider.toUpperCase() : "The Weather Channel");
   if (providerEl) providerEl.innerHTML = provStr;
 
-  // Cable operator & Channel
+  // Cable operator & Channel & Custom Provider Logo
+  var customLogo = localStorage.getItem('customProviderLogo');
+  var logoEl = getElement("headend-provider-logo");
   var cableName = (CONFIG && CONFIG.cableProvider) ? CONFIG.cableProvider : "Spectrum";
   var cableChan = (CONFIG && CONFIG.cableChannel) ? CONFIG.cableChannel : "HD channel 211";
-  if (hProvEl) hProvEl.innerHTML = cableName + ' <span class="headend-arrow">▶</span>';
+
+  if (customLogo && logoEl) {
+    logoEl.src = customLogo;
+    logoEl.style.display = "block";
+    if (hProvEl) hProvEl.style.display = "none";
+  } else {
+    if (logoEl) logoEl.style.display = "none";
+    if (hProvEl) {
+      hProvEl.style.display = "block";
+      hProvEl.innerHTML = cableName + ' <span class="headend-arrow">▶</span>';
+    }
+  }
   if (hChanEl) hChanEl.innerText = cableChan;
 
   // Formatear fecha y hora auténtica de emisión
@@ -324,6 +337,75 @@ function setInitialPositionCurrentPage(){
   }
 }
 
+function setAlmanacPage(){
+  var lang = (CONFIG && CONFIG.language) ? CONFIG.language : "es";
+  var isSpanish = lang.toLowerCase().indexOf("es") === 0;
+  var use24h = CONFIG && CONFIG.units === "m";
+
+  // Títulos y etiquetas bilingües
+  var todayTitle = getElement("almanac-today-title");
+  if (todayTitle) todayTitle.innerText = isSpanish ? "HOY" : "TODAY";
+  var tomTitle = getElement("almanac-tomorrow-title");
+  if (tomTitle) tomTitle.innerText = isSpanish ? "MAÑANA" : "TOMORROW";
+
+  var srLabelToday = getElement("almanac-sr-label-today");
+  if (srLabelToday) srLabelToday.innerText = isSpanish ? "Amanecer" : "Sunrise";
+  var ssLabelToday = getElement("almanac-ss-label-today");
+  if (ssLabelToday) ssLabelToday.innerText = isSpanish ? "Atardecer" : "Sunset";
+
+  var srLabelTom = getElement("almanac-sr-label-tomorrow");
+  if (srLabelTom) srLabelTom.innerText = isSpanish ? "Amanecer" : "Sunrise";
+  var ssLabelTom = getElement("almanac-ss-label-tomorrow");
+  if (ssLabelTom) ssLabelTom.innerText = isSpanish ? "Atardecer" : "Sunset";
+
+  // Horas solares (API o cálculo NOAA de respaldo)
+  var srToday = sunriseToday;
+  var ssToday = sunsetToday;
+  var srTom = sunriseTomorrow;
+  var ssTom = sunsetTomorrow;
+
+  if (typeof AstronomicalAlmanac !== "undefined") {
+    if (!srToday || srToday === "--" || !ssToday || ssToday === "--") {
+      var fallbackToday = AstronomicalAlmanac.computeSolarTimes(latitude, longitude, new Date());
+      srToday = fallbackToday.sunrise;
+      ssToday = fallbackToday.sunset;
+    }
+    if (!srTom || srTom === "--" || !ssTom || ssTom === "--") {
+      var tomorrowDate = new Date(Date.now() + 86400000);
+      var fallbackTom = AstronomicalAlmanac.computeSolarTimes(latitude, longitude, tomorrowDate);
+      srTom = fallbackTom.sunrise;
+      ssTom = fallbackTom.sunset;
+    }
+
+    var srTodayEl = getElement("almanac-today-sunrise");
+    if (srTodayEl) srTodayEl.innerText = AstronomicalAlmanac.formatSolarTime(srToday, use24h);
+
+    var ssTodayEl = getElement("almanac-today-sunset");
+    if (ssTodayEl) ssTodayEl.innerText = AstronomicalAlmanac.formatSolarTime(ssToday, use24h);
+
+    var srTomEl = getElement("almanac-tomorrow-sunrise");
+    if (srTomEl) srTomEl.innerText = AstronomicalAlmanac.formatSolarTime(srTom, use24h);
+
+    var ssTomEl = getElement("almanac-tomorrow-sunset");
+    if (ssTomEl) ssTomEl.innerText = AstronomicalAlmanac.formatSolarTime(ssTom, use24h);
+
+    // 4 Fases Lunares calculadas por algoritmo de Jean Meeus
+    var phases = AstronomicalAlmanac.getNextMoonPhases(new Date(), lang);
+    for (var i = 0; i < phases.length && i < 4; i++) {
+      var p = phases[i];
+      var nameEl = getElement("almanac-moon-name-" + i);
+      var dateEl = getElement("almanac-moon-date-" + i);
+      var iconEl = getElement("almanac-moon-icon-" + i);
+
+      if (nameEl) nameEl.innerText = p.name;
+      if (dateEl) dateEl.innerText = p.dateStr;
+      if (iconEl && p.iconFile) {
+        iconEl.src = "assets/icons/almanac/" + p.iconFile;
+      }
+    }
+  }
+}
+
 function getPageLogoFileName(subPageName){
   switch (subPageName) {
     case "single-alert-page":
@@ -345,6 +427,9 @@ function getPageLogoFileName(subPageName){
     case "tomorrow-page":
     case "tomorrow-night-page":
       return "calendar.svg";
+
+    case "almanac-page":
+      return "almanac.svg";
 
     case "7day-page":
       return "week.svg";

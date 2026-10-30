@@ -28,7 +28,8 @@ window.CONFIG = {
   secrets: {
     twcAPIKey: '71f92ea9dd2f4790b92ea9dd2f779061',
     googleApiKey: '',
-    owmApiKey: ''
+    owmApiKey: '',
+    cartoApiKey: ''
   },
 
   selectedLocation: null,
@@ -188,6 +189,12 @@ window.CONFIG = {
       localStorage.setItem('twcAPIKey', CONFIG.secrets.twcAPIKey);
     }
 
+    const cartoKeyInput = document.getElementById('carto-api-key');
+    if (cartoKeyInput) {
+      CONFIG.secrets.cartoApiKey = cartoKeyInput.value.trim();
+      localStorage.setItem('cartoApiKey', CONFIG.secrets.cartoApiKey);
+    }
+
     const crawlInput = document.getElementById('crawlText-text');
     if (crawlInput && crawlInput.value.trim()) {
       CONFIG.crawl = crawlInput.value.trim();
@@ -238,7 +245,7 @@ window.CONFIG = {
     content.innerHTML = '';
 
     // Cargar valores guardados previamente
-    if (localStorage.getItem('crawlSpeed')) CONFIG.crawlSpeed = parseInt(localStorage.getItem('crawlSpeed'), 10);
+    if (localStorage.getItem('crawlSpeed')) CONFIG.crawlSpeed = parseInt(localStorage.getItem('crawlSpeed'), 10) || 100;
     if (localStorage.getItem('ttsEnabled')) CONFIG.ttsEnabled = localStorage.getItem('ttsEnabled') === 'y';
     if (localStorage.getItem('ttsLanguage')) CONFIG.ttsLanguage = localStorage.getItem('ttsLanguage');
     if (localStorage.getItem('idScreenPosition')) CONFIG.idScreenPosition = localStorage.getItem('idScreenPosition');
@@ -250,6 +257,7 @@ window.CONFIG = {
     if (localStorage.getItem('googleApiKey')) CONFIG.secrets.googleApiKey = localStorage.getItem('googleApiKey');
     if (localStorage.getItem('owmApiKey')) CONFIG.secrets.owmApiKey = localStorage.getItem('owmApiKey');
     if (localStorage.getItem('twcAPIKey')) CONFIG.secrets.twcAPIKey = localStorage.getItem('twcAPIKey');
+    if (localStorage.getItem('cartoApiKey')) CONFIG.secrets.cartoApiKey = localStorage.getItem('cartoApiKey');
     if (localStorage.getItem('cableProvider')) CONFIG.cableProvider = localStorage.getItem('cableProvider');
     if (localStorage.getItem('cableChannel')) CONFIG.cableChannel = localStorage.getItem('cableChannel');
     if (localStorage.getItem('secondaryTickerText')) CONFIG.secondaryTickerText = localStorage.getItem('secondaryTickerText');
@@ -603,6 +611,20 @@ window.CONFIG = {
     advContainer.appendChild(twcKeyLabel);
     advContainer.appendChild(twcKeyInput);
 
+    // CARTO API Key
+    const cartoKeyLabel = document.createElement('div');
+    cartoKeyLabel.classList.add('strong-text', 'settings-text');
+    cartoKeyLabel.style.marginTop = '10px';
+    cartoKeyLabel.innerText = 'CARTO API Key (Opcional - Respaldo para mapas base)';
+    const cartoKeyInput = document.createElement('input');
+    cartoKeyInput.type = 'password';
+    cartoKeyInput.id = 'carto-api-key';
+    cartoKeyInput.classList.add('settings-input');
+    cartoKeyInput.placeholder = 'Dejar vacío para usar mapa base libre Esri World Dark Gray';
+    if (CONFIG.secrets.cartoApiKey) cartoKeyInput.value = CONFIG.secrets.cartoApiKey;
+    advContainer.appendChild(cartoKeyLabel);
+    advContainer.appendChild(cartoKeyInput);
+
     // Crawl text
     const crawlLabel = document.createElement('div');
     crawlLabel.classList.add('strong-text', 'settings-text');
@@ -687,6 +709,151 @@ window.CONFIG = {
     advContainer.appendChild(cableChanLabel);
     advContainer.appendChild(cableChanInput);
 
+    // Logotipo Personalizado del Proveedor (Headend ID)
+    const logoSectionTitle = document.createElement('div');
+    logoSectionTitle.classList.add('strong-text', 'settings-text');
+    logoSectionTitle.style.marginTop = '16px';
+    logoSectionTitle.style.color = '#38bdf8';
+    logoSectionTitle.innerText = 'Logotipo Personalizado del Proveedor (Headend ID)';
+    advContainer.appendChild(logoSectionTitle);
+
+    // Tip Informativo
+    const tipBox = document.createElement('div');
+    tipBox.style.background = 'rgba(56, 189, 248, 0.1)';
+    tipBox.style.border = '1px solid rgba(56, 189, 248, 0.3)';
+    tipBox.style.borderRadius = '6px';
+    tipBox.style.padding = '10px 14px';
+    tipBox.style.marginTop = '6px';
+    tipBox.style.marginBottom = '12px';
+    tipBox.style.fontSize = '13px';
+    tipBox.style.color = '#e2e8f0';
+    tipBox.style.lineHeight = '1.45';
+    tipBox.innerHTML = '<strong>💡 Tip de Logotipo:</strong> La imagen debe estar en formato <strong>PNG con fondo transparente (.png)</strong>. Resolución recomendada: entre <strong>280×80 px</strong> y <strong>350×120 px</strong> (proporción aproximada 3:1 o 4:1) para que encaje con máxima nitidez en la pantalla de cabecera sin pixelarse ni deformarse.';
+    advContainer.appendChild(tipBox);
+
+    // Contenedor de Vista Previa
+    const previewWrapper = document.createElement('div');
+    previewWrapper.style.display = 'flex';
+    previewWrapper.style.alignItems = 'center';
+    previewWrapper.style.gap = '15px';
+    previewWrapper.style.marginBottom = '10px';
+
+    const previewBox = document.createElement('div');
+    previewBox.id = 'provider-logo-preview-box';
+    previewBox.style.width = '240px';
+    previewBox.style.height = '70px';
+    previewBox.style.borderRadius = '6px';
+    previewBox.style.border = '1px dashed rgba(255, 255, 255, 0.3)';
+    previewBox.style.backgroundColor = '#1a2634';
+    previewBox.style.backgroundImage = 'linear-gradient(45deg, #223244 25%, transparent 25%), linear-gradient(-45deg, #223244 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #223244 75%), linear-gradient(-45deg, transparent 75%, #223244 75%)';
+    previewBox.style.backgroundSize = '16px 16px';
+    previewBox.style.backgroundPosition = '0 0, 0 8px, 8px -8px, -8px 0px';
+    previewBox.style.display = 'flex';
+    previewBox.style.alignItems = 'center';
+    previewBox.style.justifyContent = 'center';
+    previewBox.style.overflow = 'hidden';
+
+    const previewImg = document.createElement('img');
+    previewImg.id = 'provider-logo-preview-img';
+    previewImg.style.maxWidth = '100%';
+    previewImg.style.maxHeight = '100%';
+    previewImg.style.objectFit = 'contain';
+
+    const savedLogo = localStorage.getItem('customProviderLogo');
+    if (savedLogo) {
+      previewImg.src = savedLogo;
+      previewImg.style.display = 'block';
+      previewBox.appendChild(previewImg);
+    } else {
+      previewImg.style.display = 'none';
+      previewBox.innerHTML = '<span style="font-size: 11px; color: #94a3b8;">Sin logotipo personalizado</span>';
+    }
+    previewWrapper.appendChild(previewBox);
+
+    // Botón para restablecer logotipo
+    const resetLogoBtn = document.createElement('button');
+    resetLogoBtn.type = 'button';
+    resetLogoBtn.classList.add('settings-button');
+    resetLogoBtn.style.padding = '6px 12px';
+    resetLogoBtn.style.fontSize = '12px';
+    resetLogoBtn.innerText = 'Restablecer predeterminado';
+    resetLogoBtn.onclick = () => {
+      localStorage.removeItem('customProviderLogo');
+      previewImg.style.display = 'none';
+      previewBox.innerHTML = '<span style="font-size: 11px; color: #94a3b8;">Sin logotipo personalizado</span>';
+      if (document.getElementById('provider-logo-url-input')) document.getElementById('provider-logo-url-input').value = '';
+      if (document.getElementById('provider-logo-file-input')) document.getElementById('provider-logo-file-input').value = '';
+    };
+    previewWrapper.appendChild(resetLogoBtn);
+    advContainer.appendChild(previewWrapper);
+
+    // Selector de archivo local (.png)
+    const fileLabel = document.createElement('div');
+    fileLabel.classList.add('regular-text', 'settings-text');
+    fileLabel.style.fontSize = '13px';
+    fileLabel.innerText = 'Cargar archivo de imagen local (.png con transparencia):';
+    advContainer.appendChild(fileLabel);
+
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.id = 'provider-logo-file-input';
+    fileInput.accept = 'image/png';
+    fileInput.classList.add('settings-input');
+    fileInput.style.padding = '6px';
+    fileInput.onchange = (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) {
+        if (!file.type.includes('png')) {
+          alert('Por favor selecciona un archivo en formato PNG con fondo transparente.');
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          const dataUrl = evt.target.result;
+          try {
+            localStorage.setItem('customProviderLogo', dataUrl);
+            previewBox.innerHTML = '';
+            previewImg.src = dataUrl;
+            previewImg.style.display = 'block';
+            previewBox.appendChild(previewImg);
+          } catch (storageErr) {
+            console.warn("Storage quota notice:", storageErr);
+            alert("La imagen seleccionada excede el límite de almacenamiento local. Por favor utiliza una imagen PNG de menor resolución (recomendada: 280x80 a 350x120 px).");
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+    advContainer.appendChild(fileInput);
+
+    // O URL directa
+    const urlLabel = document.createElement('div');
+    urlLabel.classList.add('regular-text', 'settings-text');
+    urlLabel.style.fontSize = '13px';
+    urlLabel.style.marginTop = '6px';
+    urlLabel.innerText = 'O ingresar URL directa de la imagen (PNG transparente):';
+    advContainer.appendChild(urlLabel);
+
+    const urlInput = document.createElement('input');
+    urlInput.type = 'text';
+    urlInput.id = 'provider-logo-url-input';
+    urlInput.classList.add('settings-input');
+    urlInput.placeholder = 'https://ejemplo.com/logo.png';
+    if (savedLogo && !savedLogo.startsWith('data:')) {
+      urlInput.value = savedLogo;
+    }
+    urlInput.oninput = () => {
+      const val = urlInput.value.trim();
+      if (val) {
+        localStorage.setItem('customProviderLogo', val);
+        previewBox.innerHTML = '';
+        previewImg.src = val;
+        previewImg.style.display = 'block';
+        previewBox.appendChild(previewImg);
+      }
+    };
+    advContainer.appendChild(urlInput);
+
     content.appendChild(advContainer);
 
     // Botón Mostrar/Ocultar Opciones Avanzadas
@@ -768,6 +935,10 @@ function hideSettings() {
 
 // Escuchar atajos globales dentro de la ventana: F2 o Ctrl+,
 document.addEventListener('keydown', (e) => {
+  // En Electron, el atajo F2/Ctrl+, es gestionado exclusivamente vía IPC por electron-main para evitar doble disparo simultáneo
+  if (window.electronAPI && window.electronAPI.isElectron) {
+    return;
+  }
   if (e.key === 'F2' || (e.ctrlKey && e.key === ',')) {
     e.preventDefault();
     toggleSettings();

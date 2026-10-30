@@ -33,8 +33,14 @@ function createWindow() {
     }
   });
 
-  // Mantener relación de aspecto 16:9 durante el redimensionamiento
-  mainWindow.setAspectRatio(16 / 9);
+  // Mantener relación de aspecto 16:9 durante el redimensionamiento si la plataforma lo soporta
+  if (typeof mainWindow.setAspectRatio === 'function') {
+    try {
+      mainWindow.setAspectRatio(16 / 9);
+    } catch (e) {
+      console.warn('setAspectRatio notice:', e);
+    }
+  }
 
   // Cargar directamente la interfaz desde el sistema de archivos local
   mainWindow.loadFile('index.html');

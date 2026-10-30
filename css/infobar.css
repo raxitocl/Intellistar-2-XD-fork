@@ -2,10 +2,17 @@
   height: 95px;
   width: 1235px;
   position: absolute;
-  top: 85px;
+  top: 130px;
   left: 150px;
   overflow: hidden;
   font-size: 0px;
+  z-index: 50;
+  border-radius: 8px 8px 0 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: none;
+  background: rgba(10, 18, 28, 0.85);
+  backdrop-filter: blur(8px);
+  box-sizing: border-box;
 }
 
 #infobar-twc-logo{
@@ -24,7 +31,7 @@
 }
 
 #infobar-time-container{
-  background-color: rgba(0, 0, 0, 0.25);
+  display: none !important;
 }
 
 .infobar-item-container{

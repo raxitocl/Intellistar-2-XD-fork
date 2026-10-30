@@ -8,13 +8,51 @@ Aplicación web y de escritorio que emula la presentación gráfica y sonora del
 
 ## 📝 Registro de Actualizaciones (Changelog)
 
-### [Próxima Versión / En Desarrollo - Broadcast Edition]
+### [Cambios / Nuevas funciones / Changelog]
+
+- **Estabilización de Runtime, Blindaje de Servidor y Correcciones de Auditoría:**
+  - **Servidor HTTP Local Robusto (`server.js`):** Protección con `try...catch` en `decodeURIComponent` frente a ataques o caídas por caracteres corruptos (código 400), verificación física previa de archivos en streams para evitar excepciones `ENOENT` en directorios sin `index.html` (código 403), sanitización contra XSS en páginas de error 404, soporte formal para fuentes tipográficas `.otf` en `MIME_TYPES`, y manejo controlado de puertos en escucha.
+  - **Deduplicación de Atajos en Electron (`electron-main.js` y `Config.js`):** Supresión de la doble ejecución de `toggleSettings()` al presionar `F2` o `Ctrl+,` en Electron mediante canalización exclusiva por IPC y retorno de función de desuscripción de eventos en `preload.js`.
+  - **Scripts de Windows `.bat`:** Inclusión de `cd /d "%~dp0"` en `iniciar-servidor.bat` e `iniciar-webapp.bat` para ejecución fiable desde cualquier acceso directo o ubicación en Windows 10 LTSC, con apertura coordinada del navegador tras el inicio del servidor.
+  - **Restauración Tipográfica y Saneamiento de Assets:** Restitución de la auténtica fuente delgada `fonts/akkopro-thin.otf` (201 KB, firma OTTO) eliminando la copia duplicada y depurando archivos residuales o corruptos en `fonts/` y `assets/music/` (`1.wav`, `storm.wav`, `bgs/empty`).
+  - **Normalización DOM y Cascada CSS:** Corrección de la clase dimensional `forecast-left` en `index.html:380`, asignación de `class="radar-container"` para contención de mapas, elevación de `z-index: 40` en `#amazing-container` y `#updated-container` para visibilidad garantizada al cierre, y ajuste de altura a 525px en `.almanac-content-container`.
+  - **Corrección Física de Punto de Rocío y Resiliencia Meteorológica:** Bifurcación correcta de la fórmula de punto de rocío en `WeatherProviders.js` para Celsius (`/ 5`) vs. Fahrenheit (`* 0.36`), protección total ante arreglos vacíos en TWC y reintento automático cada 30 segundos ante cortes de conexión en `WeatherFetching.js`.
+  - **Gestión de Memoria y Ciclo de Vida 24/7:** Reutilización limpia y destrucción previa de objetos `Audio` en `preLoadMusic()`, reactivación garantizada del carrusel `NationalTicker` tras el cierre de mapas de radar, destrucción estricta de instancias Leaflet en segundo plano (`activeZoomedRadarMap`), e inclusión de `almanac-page` en `resetVisualState()` para evitar solapamientos visuales en bucle continuo.
+  - **Prevención de Recolección de Basura en Locución TTS:** Retención en memoria de la instancia `SpeechSynthesisUtterance` en `window._activeUtterance` para impedir que el motor V8 de Chromium/Electron destruya la voz a mitad de frase.
+
+- **Nueva Pantalla de Almanaque Astronómico (`almanac-page` - 15 Segundos):**
+  - Incorporación de la diapositiva oficial de almanaque situada entre el pronóstico extendido (`7day-page`) y la cabecera (`headend-id-page`), con duración de 15 segundos y representada en la línea de tiempo por el icono oficial `assets/timeline/almanac.svg`.
+  - Diseño apilado vertical (Vertical Stacked Layout): bloque superior solar con horas de amanecer y atardecer para hoy y mañana (Open-Meteo/TWC con respaldo solar NOAA de alta precisión) acompañadas de iconos animados `sunrise.svg` y `sunset.svg`; y bloque inferior con franja horizontal de 4 tarjetas de fases lunares (Luna Nueva, Cuarto Creciente, Luna Llena y Cuarto Menguante) con iconos vectoriales Meteocons Astronomical y fechas exactas calculadas mediante el algoritmo astronómico de Jean Meeus.
+  - Locución vocal TTS concisa al ingreso (_"A continuación, el almanaque astronómico local para hoy y mañana"_ / _"Here is your local astronomical almanac"_), manteniendo el resto de los 15 segundos con la música ambiental de fondo.
+
+- **Personalización del Logotipo del Proveedor en Pantalla de Cabecera:**
+  - Nueva sección en el panel de configuración con selector de archivo de imagen local `.png` con fondo transparente y conversión automática a Base64 en `localStorage` (`customProviderLogo`).
+  - Campo alternativo para URL directa, botón de restablecimiento inmediato y cuadro de vista previa en tiempo real con fondo cuadriculado de transparencia.
+  - Tip informativo de diseño integrado: formato PNG transparente, resolución recomendada de **280×80 px a 350×120 px** (proporción 3:1 o 4:1) para nitidez óptima.
+  - Renderizado automático y nítido en `#headend-id-page` mediante `#headend-provider-logo`.
+
+- **Radar Dual Esri Libre por Defecto + Respaldo CARTO con Clave API:**
+  - Mapa base predeterminado 100% público y libre de cuotas: **Esri World Dark Gray Base**, eliminando cualquier solicitud o bloqueo de claves API en el radar.
+  - Respaldo opcional para CARTO: campo configurable `CARTO API Key` en Opciones Avanzadas; si se ingresa una clave se utiliza CARTO Dark con conmutación tolerante a Esri en caso de error en los tiles (`tileerror`).
+  - Capa Doppler en vivo de RainViewer combinada con capa superior de referencias y fronteras geográficas **Esri World Dark Gray Reference** (`zIndex: 20`).
+
+- **Barra Superior Acoplada (Top InfoBar sin Reloj):**
+  - Reubicación de `#infobar-container` en `top: 130px; height: 95px; width: 1235px; left: 150px; z-index: 50;` acoplándose con precisión matemática sobre el marco de contenido principal (`top: 225px`).
+  - Despliegue de logotipos oficiales (The Weather Channel y Local on the 8s) y nombre de la ciudad activa.
+  - Ocultamiento permanente del reloj digital superior (`#infobar-time-container { display: none !important; }`) para evitar duplicación con el reloj del Lower Third.
+
+- **Audio Broadcast Continuo y Locución TTS Garantizada:**
+  - Desbloqueador de audio (`AudioUnlocker`) que captura el primer gesto del usuario (`pointerdown` o `keydown`) si la directiva de autoplay del navegador interrumpe el jingle de inicio.
+  - Reproducción continua sin cortes prematuros con `music.loop = true;` y fade-out suave de volumen (`setMusicVolume(0, 1500)`) al concluir la secuencia.
+  - Intro silenciosa de locución: eliminación de diálogo vocal en la pantalla de bienvenida (`executeGreetingPage`), reservando los primeros 6.5s a la fanfarria instrumental del jingle.
+  - Generación de narrativa natural en español para los pronósticos de hoy, esta noche, mañana y mañana por la noche, asegurando diálogo vocal fluido.
+  - Extensión de la duración de `headend-id-page` a 9.5 segundos con frase concisa para garantizar que el locutor concluya el 100% de su mensaje antes de la salida.
 
 - **Restauración Auténtica de Pantalla de Inicio (Intro + Crawl Sincrónico):**
   - Solución definitiva al bloqueo que causaba una pantalla vacía en el arranque; ahora `#content-container` se expande de inmediato (`top: 225px; height: 590px`).
-  - Despliegue instantáneo del saludo *"HELLO [CIUDAD]"* junto al logotipo oficial *"Local on the 8s"* y el cintillo inferior `#crawler-container` deslizando texto desde el segundo 0.
+  - Despliegue instantáneo del saludo _"HELLO [CIUDAD]"_ junto al logotipo oficial _"Local on the 8s"_ y el cintillo inferior `#crawler-container` deslizando texto desde el segundo 0.
   - Sintonización de la duración de la intro a 6.5 segundos para acompañar el jingle musical oficial y la locución vocal TTS en español.
-  - Transición limpia a las 6.5s hacia la diapositiva *Now* con ocultamiento ordenado de `#greeting-page`.
+  - Transición limpia a las 6.5s hacia la diapositiva _Now_ con ocultamiento ordenado de `#greeting-page`.
 - **Carrusel Meteorológico de Ciudades en el Ticker Inferior (10s):**
   - Activación inmediata y autónoma de la rotación cada 10 segundos en la barra inferior Lower Third.
   - Consulta multi-coordenada por lotes (Open-Meteo) para las principales ciudades del país correspondiente a la ubicación elegida (ej. Arica, Iquique, Antofagasta, Calama, etc.).

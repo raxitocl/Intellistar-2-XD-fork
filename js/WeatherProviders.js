@@ -277,7 +277,7 @@ window.WeatherProviders = {
           feelsLike = Math.round(rec.feels_like !== undefined ? rec.feels_like : currentTemperature);
           visibility = rec.visibility ? Math.round(isMetric ? rec.visibility / 1000 : rec.visibility / 1609.34) : 10;
           humidity = rec.humidity || 50;
-          dewPoint = Math.round(rec.dew_point !== undefined ? rec.dew_point : (currentTemperature - ((100 - humidity) / 5)));
+          dewPoint = Math.round(rec.dew_point !== undefined ? rec.dew_point : (isMetric ? (currentTemperature - ((100 - humidity) / 5)) : (currentTemperature - ((100 - humidity) * 0.36))));
 
           const pressObj = WeatherProviders.formatPressure(rec.pressure, isMetric);
           pressure = pressObj.formatted;
@@ -383,7 +383,7 @@ window.WeatherProviders = {
       feelsLike = Math.round(main.feels_like !== undefined ? main.feels_like : currentTemperature);
       visibility = curData.visibility ? Math.round(isMetric ? curData.visibility / 1000 : curData.visibility / 1609.34) : 10;
       humidity = main.humidity || 50;
-      dewPoint = Math.round(currentTemperature - ((100 - humidity) / 5));
+      dewPoint = Math.round(isMetric ? (currentTemperature - ((100 - humidity) / 5)) : (currentTemperature - ((100 - humidity) * 0.36)));
 
       const pressObj = WeatherProviders.formatPressure(main.pressure, isMetric);
       pressure = pressObj.formatted;
@@ -504,12 +504,25 @@ window.WeatherProviders = {
       const fcData = await fcRes.json();
       const forecasts = fcData.forecasts || [];
 
-      isDay = !!forecasts[0].day;
+      if (!forecasts || forecasts.length === 0) {
+        throw new Error("TWC no devolvió pronósticos válidos");
+      }
+
+      if (forecasts[0]) {
+        sunriseToday = forecasts[0].sunrise || forecasts[0].sunrise_iso || "";
+        sunsetToday = forecasts[0].sunset || forecasts[0].sunset_iso || "";
+      }
+      if (forecasts[1]) {
+        sunriseTomorrow = forecasts[1].sunrise || forecasts[1].sunrise_iso || "";
+        sunsetTomorrow = forecasts[1].sunset || forecasts[1].sunset_iso || "";
+      }
+
+      isDay = !!(forecasts[0] && forecasts[0].day);
       const ns = [];
-      ns.push(forecasts[0].day || forecasts[0].night);
-      ns.push(forecasts[0].night || forecasts[0].day);
-      ns.push(forecasts[1].day || forecasts[1].night);
-      ns.push(forecasts[1].night || forecasts[1].day);
+      ns.push(forecasts[0] ? (forecasts[0].day || forecasts[0].night || {}) : {});
+      ns.push(forecasts[0] ? (forecasts[0].night || forecasts[0].day || {}) : {});
+      ns.push(forecasts[1] ? (forecasts[1].day || forecasts[1].night || {}) : (forecasts[0] || {}));
+      ns.push(forecasts[1] ? (forecasts[1].night || forecasts[1].day || {}) : (forecasts[0] || {}));
 
       for (let i = 0; i <= 3; i++) {
         const n = ns[i] || {};
@@ -521,7 +534,7 @@ window.WeatherProviders = {
       }
 
       for (let i = 0; i < 7; i++) {
-        const fc = forecasts[i + 1] || forecasts[i];
+        const fc = forecasts[i + 1] || forecasts[i] || forecasts[0] || {};
         const p = fc.day || fc.night || {};
         outlookHigh[i] = fc.max_temp !== null && fc.max_temp !== undefined ? fc.max_temp : "--";
         outlookLow[i] = fc.min_temp !== null && fc.min_temp !== undefined ? fc.min_temp : "--";
@@ -594,7 +607,7 @@ window.WeatherProviders = {
       const tempUnit = isMetric ? "celsius" : "fahrenheit";
       const windUnit = isMetric ? "kmh" : "mph";
 
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=10&temperature_unit=${tempUnit}&wind_speed_unit=${windUnit}&timezone=auto`;
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset&forecast_days=10&temperature_unit=${tempUnit}&wind_speed_unit=${windUnit}&timezone=auto`;
 
       const res = await fetch(url);
       if (!res.ok) {
@@ -603,6 +616,13 @@ window.WeatherProviders = {
       const data = await res.json();
       const cur = data.current || {};
       const daily = data.daily || {};
+
+      if (daily.sunrise && daily.sunrise.length > 0) {
+        sunriseToday = daily.sunrise[0];
+        sunsetToday = daily.sunset[0];
+        sunriseTomorrow = daily.sunrise[1] || "";
+        sunsetTomorrow = daily.sunset[1] || "";
+      }
 
       const isDaytime = cur.is_day !== undefined ? !!cur.is_day : true;
       currentTemperature = Math.round(cur.temperature_2m || 0);
@@ -620,7 +640,7 @@ window.WeatherProviders = {
       feelsLike = Math.round(cur.apparent_temperature !== undefined ? cur.apparent_temperature : currentTemperature);
       humidity = Math.round(cur.relative_humidity_2m || 50);
       visibility = 10;
-      dewPoint = Math.round(currentTemperature - ((100 - humidity) / 5));
+      dewPoint = Math.round(isMetric ? (currentTemperature - ((100 - humidity) / 5)) : (currentTemperature - ((100 - humidity) * 0.36)));
 
       const pressObj = WeatherProviders.formatPressure(cur.surface_pressure, isMetric);
       pressure = pressObj.formatted;

@@ -1,4 +1,5 @@
 @echo off
+cd /d "%~dp0"
 title IntelliStar 2 XD - WebApp de Escritorio (Electron)
 color 0A
 echo ============================================================
@@ -28,4 +29,3 @@ if %errorlevel% neq 0 (
     echo [Aviso] La aplicacion se cerro con codigo %errorlevel%.
     pause
 )
-

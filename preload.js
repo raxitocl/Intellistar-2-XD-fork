@@ -12,9 +12,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getDisplayMode: () => ipcRenderer.invoke('get-display-mode'),
   toggleDevTools: () => ipcRenderer.send('toggle-devtools'),
   onToggleSettings: (callback) => {
-    ipcRenderer.on('toggle-settings', () => {
+    const handler = () => {
       if (typeof callback === 'function') callback();
-    });
+    };
+    ipcRenderer.on('toggle-settings', handler);
+    return () => ipcRenderer.removeListener('toggle-settings', handler);
   }
 });
 

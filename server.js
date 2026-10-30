@@ -32,9 +32,19 @@ const MIME_TYPES = {
   '.mp3': 'audio/mpeg',
   '.ogg': 'audio/ogg',
   '.ttf': 'font/ttf',
+  '.otf': 'font/otf',
   '.woff': 'font/woff',
   '.woff2': 'font/woff2'
 };
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 function getLocalIpAddresses() {
   const interfaces = os.networkInterfaces();
@@ -67,9 +77,16 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Parsear la URL solicitada
+  // Parsear la URL solicitada con protección contra excepciones de decodificación
   const parsedUrl = url.parse(req.url);
-  let pathname = decodeURIComponent(parsedUrl.pathname);
+  let pathname;
+  try {
+    pathname = decodeURIComponent(parsedUrl.pathname);
+  } catch (uriErr) {
+    res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('400 Solicitud incorrecta: URL mal formada');
+    return;
+  }
 
   // Ruta raíz entrega index.html
   if (pathname === '/' || pathname === '') {
@@ -80,7 +97,7 @@ const server = http.createServer((req, res) => {
   const safePath = path.normalize(path.join(PUBLIC_DIR, pathname));
   if (!safePath.startsWith(PUBLIC_DIR)) {
     res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
-    res.end('Acceso denegado');
+    res.end('403 Acceso denegado');
     return;
   }
 
@@ -88,7 +105,7 @@ const server = http.createServer((req, res) => {
     if (err) {
       if (err.code === 'ENOENT') {
         res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
-        res.end(`<h1>404 No Encontrado</h1><p>El archivo <code>${pathname}</code> no existe.</p>`);
+        res.end(`<h1>404 No Encontrado</h1><p>El archivo <code>${escapeHtml(pathname)}</code> no existe.</p>`);
       } else {
         res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
         res.end('Error interno del servidor: ' + err.code);
@@ -96,69 +113,102 @@ const server = http.createServer((req, res) => {
       return;
     }
 
-    let filePathToServe = safePath;
+    // Si es un directorio, verificar si index.html existe dentro
     if (stats.isDirectory()) {
-      filePathToServe = path.join(safePath, 'index.html');
-    }
-
-    const ext = path.extname(filePathToServe).toLowerCase();
-    const contentType = MIME_TYPES[ext] || 'application/octet-stream';
-
-    // Soporte para streaming y reproducción parcial de audio (HTTP Range)
-    const totalSize = stats.size;
-    const range = req.headers.range;
-
-    if (range && (ext === '.wav' || ext === '.mp3' || ext === '.ogg')) {
-      const parts = range.replace(/bytes=/, '').split('-');
-      const start = parseInt(parts[0], 10);
-      const end = parts[1] ? parseInt(parts[1], 10) : totalSize - 1;
-
-      if (start >= totalSize || end >= totalSize) {
-        res.writeHead(416, {
-          'Content-Range': `bytes */${totalSize}`
-        });
-        res.end();
-        return;
-      }
-
-      const chunkSize = (end - start) + 1;
-      const fileStream = fs.createReadStream(filePathToServe, { start, end });
-
-      res.writeHead(206, {
-        'Content-Range': `bytes ${start}-${end}/${totalSize}`,
-        'Accept-Ranges': 'bytes',
-        'Content-Length': chunkSize,
-        'Content-Type': contentType
+      const indexCandidate = path.join(safePath, 'index.html');
+      fs.stat(indexCandidate, (indexErr, indexStats) => {
+        if (indexErr || !indexStats.isFile()) {
+          res.writeHead(403, { 'Content-Type': 'text/html; charset=utf-8' });
+          res.end(`<h1>403 Acceso Denegado</h1><p>No se permite listar el directorio <code>${escapeHtml(pathname)}</code>.</p>`);
+          return;
+        }
+        serveFile(req, res, indexCandidate, indexStats);
       });
-
-      if (req.method === 'HEAD') {
-        res.end();
-      } else {
-        fileStream.pipe(res);
-      }
       return;
     }
 
-    // Respuesta estándar
-    res.writeHead(200, {
-      'Content-Type': contentType,
-      'Content-Length': totalSize,
+    serveFile(req, res, safePath, stats);
+  });
+});
+
+function serveFile(req, res, filePathToServe, stats) {
+  const ext = path.extname(filePathToServe).toLowerCase();
+  const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+  const totalSize = stats.size;
+  const range = req.headers.range;
+
+  // Soporte para streaming y reproducción parcial de audio (HTTP Range)
+  if (range && (ext === '.wav' || ext === '.mp3' || ext === '.ogg')) {
+    const parts = range.replace(/bytes=/, '').split('-');
+    const start = parseInt(parts[0], 10);
+    const end = parts[1] ? parseInt(parts[1], 10) : totalSize - 1;
+
+    if (start >= totalSize || end >= totalSize || start > end) {
+      res.writeHead(416, { 'Content-Range': `bytes */${totalSize}` });
+      res.end();
+      return;
+    }
+
+    const chunkSize = (end - start) + 1;
+    const fileStream = fs.createReadStream(filePathToServe, { start, end });
+    fileStream.on('error', (streamErr) => {
+      console.warn('[Stream Error Range]', streamErr);
+      if (!res.headersSent) res.writeHead(500);
+      res.end();
+    });
+
+    res.writeHead(206, {
+      'Content-Range': `bytes ${start}-${end}/${totalSize}`,
       'Accept-Ranges': 'bytes',
-      'Cache-Control': 'no-cache'
+      'Content-Length': chunkSize,
+      'Content-Type': contentType
     });
 
     if (req.method === 'HEAD') {
       res.end();
     } else {
-      fs.createReadStream(filePathToServe).pipe(res);
+      fileStream.pipe(res);
     }
+    return;
+  }
+
+  // Respuesta estándar 200 OK
+  res.writeHead(200, {
+    'Content-Type': contentType,
+    'Content-Length': totalSize,
+    'Accept-Ranges': 'bytes',
+    'Cache-Control': 'no-cache'
   });
-});
+
+  if (req.method === 'HEAD') {
+    res.end();
+  } else {
+    const fileStream = fs.createReadStream(filePathToServe);
+    fileStream.on('error', (streamErr) => {
+      console.warn('[Stream Error]', streamErr);
+      if (!res.headersSent) res.writeHead(500);
+      res.end();
+    });
+    fileStream.pipe(res);
+  }
+}
 
 // Selección de puerto con tolerancia a puertos ocupados
 let DEFAULT_PORT = parseInt(process.env.PORT, 10) || 8080;
+let currentPort = DEFAULT_PORT;
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.warn(`[Aviso] El puerto ${currentPort} está ocupado. Probando puerto ${currentPort + 1}...`);
+    currentPort++;
+    startServer(currentPort);
+  } else {
+    console.error('Error fatal al iniciar servidor:', err);
+  }
+});
 
 function startServer(port) {
+  currentPort = port;
   server.listen(port, () => {
     const ips = getLocalIpAddresses();
     console.log('===========================================================');
@@ -171,15 +221,6 @@ function startServer(port) {
     });
     console.log('===========================================================');
     console.log(' Presiona Ctrl+C en cualquier momento para detener el servidor.\n');
-  });
-
-  server.on('error', (err) => {
-    if (err.code === 'EADDRINUSE') {
-      console.warn(`[Aviso] El puerto ${port} está ocupado. Probando puerto ${port + 1}...`);
-      startServer(port + 1);
-    } else {
-      console.error('Error fatal al iniciar servidor:', err);
-    }
   });
 }
 

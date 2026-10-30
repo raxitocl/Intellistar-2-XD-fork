@@ -36,6 +36,7 @@ var currentLogoIndex = 0;
 var pageOrder;
 var music;
 var activeRadarMap = null;
+var activeZoomedRadarMap = null;
 
 window.onload = function() {
   CONFIG.load();
@@ -50,9 +51,18 @@ window.onload = function() {
 };
 
 function preLoadMusic(){
+  if (music) {
+    try {
+      music.pause();
+      music.src = "";
+      music.load();
+    } catch (e) {}
+    music = null;
+  }
   // Pistas de música disponibles en assets/music: 2.wav a 12.wav
   var index = Math.floor(Math.random() * 11) + 2;
   music = new Audio("assets/music/" + index + ".wav");
+  music.loop = true;
   music.volume = 0.45;
   jingle.volume = 0.70;
 }
@@ -89,16 +99,25 @@ function scheduleTimeline(){
     baseSequence = JSON.parse(JSON.stringify(NIGHT));
   }
 
+  var almanacPageItem = {
+    name: "Almanac",
+    subpages: [{ name: "almanac-page", duration: 15000 }]
+  };
+
   var idPageItem = {
     name: "Headend ID",
-    subpages: [{ name: "headend-id-page", duration: 7000 }]
+    subpages: [{ name: "headend-id-page", duration: 9500 }]
   };
 
   var idPos = (window.CONFIG && window.CONFIG.idScreenPosition) ? window.CONFIG.idScreenPosition : 'end';
   if (idPos === 'start') {
     baseSequence.unshift(idPageItem);
+    baseSequence.push(almanacPageItem);
   } else if (idPos === 'end') {
+    baseSequence.push(almanacPageItem);
     baseSequence.push(idPageItem);
+  } else {
+    baseSequence.push(almanacPageItem);
   }
 
   pageOrder = baseSequence;
@@ -128,6 +147,7 @@ function setInformation(){
   setAlertPage();
   setForecast();
   setOutlook();
+  if (typeof setAlmanacPage === 'function') setAlmanacPage();
   createLogoElements();
   setCurrentConditions();
   setHeadendIdPage();
@@ -199,8 +219,25 @@ function checkStormMusic(){
   // Conservar la pista de música seleccionada
 }
 
+function installAudioUnlocker() {
+  if (window._audioUnlockerInstalled) return;
+  window._audioUnlockerInstalled = true;
+  var unlock = function() {
+    if (jingle && jingle.paused && !jingle.ended) {
+      jingle.play().catch(function(e) { console.warn("AudioUnlocker jingle notice:", e); });
+    }
+    if (music && music.paused && !music.ended) {
+      music.play().catch(function(e) { console.warn("AudioUnlocker music notice:", e); });
+    }
+    window.removeEventListener('pointerdown', unlock);
+    window.removeEventListener('keydown', unlock);
+  };
+  window.addEventListener('pointerdown', unlock, { once: true });
+  window.addEventListener('keydown', unlock, { once: true });
+}
+
 function startAnimation(){
-  // Eliminada invocación prematura de setInitialPositionCurrentPage para evitar solapamiento con greeting-page
+  installAudioUnlocker();
   jingle.play().catch(e => console.warn("Jingle autoplay notice:", e));
   setTimeout(startMusic, 5000);
   executeGreetingPage();
@@ -208,6 +245,9 @@ function startAnimation(){
 
 function startMusic(){
   if (music) {
+    if (music.volume < 0.45) {
+      music.volume = 0.45;
+    }
     music.play().catch(e => console.warn("Music autoplay notice:", e));
   }
 }
@@ -239,9 +279,7 @@ function executeGreetingPage(){
   // Iniciar el crawl inferior sincrónicamente con la intro
   showCrawl();
 
-  if (window.TTSNarration) {
-    TTSNarration.speak('greeting');
-  }
+  // Intro puramente musical con fanfarria jingle (sin diálogo de voz en el inicio por diseño)
 
   // 6.5 segundos para acompañar el jingle completo y la locución TTS
   setTimeout(clearGreetingPage, 6500);
@@ -278,6 +316,70 @@ function schedulePages(){
       setTimeout(clearPage, clearTime, p, s);
       cumlativeTime = clearTime;
     }
+  }
+}
+
+function getTodayNarrative() {
+  var lang = (CONFIG && CONFIG.language) ? CONFIG.language : "es";
+  var isSpanish = lang.toLowerCase().indexOf("es") === 0;
+  var nat = forecastNarrative[0];
+  if (nat && nat.trim() && (!isSpanish || !/^(Today:|Tonight:)/i.test(nat))) {
+    return nat;
+  }
+  var temp = forecastTemp[0] !== undefined ? forecastTemp[0] : currentTemperature;
+  var cond = currentCondition || (isSpanish ? "cielo despejado" : "fair");
+  if (isSpanish) {
+    return "máxima de " + temp + " grados con " + cond + ".";
+  } else {
+    return "High of " + temp + " degrees with " + cond + ".";
+  }
+}
+
+function getTonightNarrative() {
+  var lang = (CONFIG && CONFIG.language) ? CONFIG.language : "es";
+  var isSpanish = lang.toLowerCase().indexOf("es") === 0;
+  var nat = forecastNarrative[1];
+  if (nat && nat.trim() && (!isSpanish || !/^(Today:|Tonight:)/i.test(nat))) {
+    return nat;
+  }
+  var temp = forecastTemp[1] !== undefined ? forecastTemp[1] : (currentTemperature - 8);
+  var cond = currentCondition || (isSpanish ? "cielo despejado" : "fair");
+  if (isSpanish) {
+    return "mínima de " + temp + " grados con " + cond + ".";
+  } else {
+    return "Low of " + temp + " degrees with " + cond + ".";
+  }
+}
+
+function getTomorrowNarrative() {
+  var lang = (CONFIG && CONFIG.language) ? CONFIG.language : "es";
+  var isSpanish = lang.toLowerCase().indexOf("es") === 0;
+  var nat = forecastNarrative[2];
+  if (nat && nat.trim() && (!isSpanish || !/^(Today:|Tomorrow:)/i.test(nat))) {
+    return nat;
+  }
+  var temp = forecastTemp[2] !== undefined ? forecastTemp[2] : currentTemperature;
+  var rawCond = (outlookCondition && outlookCondition[1]) ? outlookCondition[1] : (currentCondition || (isSpanish ? "cielo despejado" : "fair"));
+  var cond = String(rawCond).replace(/<br\s*[\/]?>/gi, " ");
+  if (isSpanish) {
+    return "máxima estimada en " + temp + " grados con " + cond + ".";
+  } else {
+    return "High expected around " + temp + " degrees with " + cond + ".";
+  }
+}
+
+function getTomorrowNightNarrative() {
+  var lang = (CONFIG && CONFIG.language) ? CONFIG.language : "es";
+  var isSpanish = lang.toLowerCase().indexOf("es") === 0;
+  var nat = forecastNarrative[3];
+  if (nat && nat.trim() && (!isSpanish || !/^(Today:|Tomorrow:)/i.test(nat))) {
+    return nat;
+  }
+  var temp = forecastTemp[3] !== undefined ? forecastTemp[3] : (currentTemperature - 8);
+  if (isSpanish) {
+    return "mínima nocturna de " + temp + " grados.";
+  } else {
+    return "Nighttime low of " + temp + " degrees.";
   }
 }
 
@@ -329,18 +431,27 @@ function executePage(pageIndex, subPageIndex){
     startZoomedRadar();
   }
   else if(currentSubPageName == 'today-page'){
-    if (window.TTSNarration) TTSNarration.speak('today', { narrative: forecastNarrative[0] });
+    if (window.TTSNarration) TTSNarration.speak('today', { narrative: getTodayNarrative() });
   }
   else if(currentSubPageName == 'tonight-page'){
-    if (window.TTSNarration) TTSNarration.speak('tonight', { narrative: forecastNarrative[1] });
+    if (window.TTSNarration) TTSNarration.speak('tonight', { narrative: getTonightNarrative() });
   }
   else if(currentSubPageName == 'tomorrow-page'){
-    if (window.TTSNarration) TTSNarration.speak('tomorrow', { narrative: forecastNarrative[2] });
+    if (window.TTSNarration) TTSNarration.speak('tomorrow', { narrative: getTomorrowNarrative() });
+  }
+  else if(currentSubPageName == 'tomorrow-night-page'){
+    if (window.TTSNarration) TTSNarration.speak('tomorrowNight', { narrative: getTomorrowNightNarrative() });
+  }
+  else if(currentSubPageName == 'almanac-page'){
+    if (typeof setAlmanacPage === 'function') setAlmanacPage();
+    if (window.TTSNarration) TTSNarration.speak('almanac');
   }
   else if(currentSubPageName == '7day-page'){
     if (window.TTSNarration) TTSNarration.speak('outlook');
   }
   else if(currentSubPageName == 'headend-id-page'){
+    var pAlmanac = getElement('almanac-page');
+    if (pAlmanac) pAlmanac.style.left = '-101%';
     var p7 = getElement('7day-page');
     if (p7) p7.style.left = '-101%';
     var fl = getElement('forecast-left-container');
@@ -350,7 +461,13 @@ function executePage(pageIndex, subPageIndex){
     var ot = getElement('outlook-titlebar');
     if (ot) ot.classList.add('hidden');
     if (typeof setHeadendIdPage === 'function') setHeadendIdPage();
-    if (window.TTSNarration) TTSNarration.speak('idScreen');
+    var rawCity = cityName || (CONFIG.selectedLocation ? (CONFIG.selectedLocation.city || CONFIG.selectedLocation.name) : "");
+    var cleanCity = (typeof LocationSearch !== 'undefined' && LocationSearch.sanitizeCityName)
+      ? LocationSearch.sanitizeCityName(rawCity)
+      : rawCity.replace(/^(Provincia de|Regi[oó]n de|Comuna de|County of)\s+/i, "").replace(/,\s*$/, "").trim();
+    var sName = stateName || (CONFIG.selectedLocation && CONFIG.selectedLocation.state) || "";
+    var cableName = (CONFIG && CONFIG.cableProvider) ? CONFIG.cableProvider : "Spectrum";
+    if (window.TTSNarration) TTSNarration.speak('idScreen', { city: cleanCity, state: sName, provider: cableName });
   }
 }
 
@@ -362,6 +479,17 @@ function clearPage(pageIndex, subPageIndex){
 
   var isNewPage = subPageCount-1 == subPageIndex;
   var isLastPage = pageIndex >= pageOrder.length-1 && subPageIndex >= pageOrder[pageOrder.length-1].subpages.length-1;
+
+  if (currentSubPageName === 'almanac-page') {
+    var ap = getElement('almanac-page');
+    if (ap) ap.style.left = '-101%';
+  }
+
+  if (currentSubPageName === 'radar-page' || currentSubPageName === 'zoomed-radar-page') {
+    if (typeof NationalTicker !== 'undefined' && NationalTicker.startRotation) {
+      NationalTicker.startRotation();
+    }
+  }
 
   if (currentSubPageName === '7day-page') {
     var fl = getElement('forecast-left-container');
@@ -391,6 +519,42 @@ function resetProgressBar(){
   getElement('progressbar').style.transitionDuration = '0ms';
   getElement('progressbar').classList.remove('progress');
   void getElement('progressbar').offsetWidth;
+}
+
+function addRadarBasemap(mapInstance) {
+  var esriBaseUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}';
+  var esriRefUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}';
+
+  var cartoKey = (CONFIG && CONFIG.secrets && CONFIG.secrets.cartoApiKey) ? CONFIG.secrets.cartoApiKey.trim() : "";
+
+  if (cartoKey) {
+    var cartoUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png?api_key=' + encodeURIComponent(cartoKey);
+    var cartoLayer = L.tileLayer(cartoUrl, {
+      maxZoom: 18,
+      subdomains: 'abcd',
+      zIndex: 1
+    });
+
+    cartoLayer.on('tileerror', function() {
+      console.warn("CARTO tile error. Conmutando a mapa base libre Esri World Dark Gray...");
+      mapInstance.removeLayer(cartoLayer);
+      L.tileLayer(esriBaseUrl, { maxZoom: 18, zIndex: 1 }).addTo(mapInstance);
+    });
+
+    cartoLayer.addTo(mapInstance);
+  } else {
+    // Servicio libre predeterminado (sin claves API ni límites de cuota)
+    L.tileLayer(esriBaseUrl, {
+      maxZoom: 18,
+      zIndex: 1
+    }).addTo(mapInstance);
+  }
+
+  // Capa de referencias geográficas (ciudades, fronteras) por encima del radar
+  L.tileLayer(esriRefUrl, {
+    maxZoom: 18,
+    zIndex: 20
+  }).addTo(mapInstance);
 }
 
 /* Radar Global en tiempo real vía Leaflet y RainViewer API */
@@ -427,11 +591,7 @@ async function startRadar(){
       dragging: false
     }).setView([latitude, longitude], 8);
 
-    // Mapa base oscuro idéntico a TWC
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      maxZoom: 18,
-      subdomains: 'abcd'
-    }).addTo(activeRadarMap);
+    addRadarBasemap(activeRadarMap);
 
     var res = await fetch('https://api.rainviewer.com/public/weather-maps.json');
     if (res.ok) {
@@ -461,13 +621,18 @@ async function startZoomedRadar(){
   container.style.width = '1235px';
   container.style.height = '525px';
 
+  if (activeZoomedRadarMap) {
+    try { activeZoomedRadarMap.remove(); } catch(e){}
+    activeZoomedRadarMap = null;
+  }
+
   if (typeof L === 'undefined') {
     if (zoomedRadarImage) container.appendChild(zoomedRadarImage);
     return;
   }
 
   try {
-    var zoomedMap = L.map(container, {
+    activeZoomedRadarMap = L.map(container, {
       attributionControl: false,
       zoomControl: false,
       scrollWheelZoom: false,
@@ -475,10 +640,7 @@ async function startZoomedRadar(){
       dragging: false
     }).setView([latitude, longitude], 10);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      maxZoom: 18,
-      subdomains: 'abcd'
-    }).addTo(zoomedMap);
+    addRadarBasemap(activeZoomedRadarMap);
 
     var res = await fetch('https://api.rainviewer.com/public/weather-maps.json');
     if (res.ok) {
@@ -492,7 +654,7 @@ async function startZoomedRadar(){
           maxNativeZoom: 6,
           maxZoom: 18,
           zIndex: 10
-        }).addTo(zoomedMap);
+        }).addTo(activeZoomedRadarMap);
       }
     }
   } catch (e) {
@@ -513,13 +675,25 @@ function scrollCC(){
   for (var i = 0; i < ccElements.length; i++) {
     ccElements[i].style.top = '-80px';
   }
-  var pressureArray = (pressure ? pressure.toString() : "1013").split('.');
   animateValue("cc-visibility", 0, visibility || 10, 800, 1);
   animateValue("cc-humidity", 0, humidity || 50, 1000, 1);
   animateValue("cc-dewpoint", 0, dewPoint || 15, 1200, 1);
   animateValue("cc-feelslike", 0, (feelsLike !== undefined && feelsLike !== null) ? feelsLike : currentTemperature, 1000, 1);
-  animateValue("cc-pressure1", 0, pressureArray[0] || "0", 1400, 1);
-  animateValue("cc-pressure2", 0, pressureArray[1] || "0", 1400, 2);
+
+  var isMetric = (CONFIG && CONFIG.units === "m");
+  var pDot = getElement("cc-pressuredot");
+  var p2 = getElement("cc-pressure2");
+  if (isMetric) {
+    if (pDot) pDot.style.display = 'none';
+    if (p2) p2.style.display = 'none';
+    animateValue("cc-pressure1", 0, pressure ? Math.round(parseFloat(pressure)) : 1013, 1400, 1);
+  } else {
+    if (pDot) pDot.style.display = 'inline';
+    if (p2) p2.style.display = 'inline';
+    var pressureArray = (pressure ? pressure.toString() : "29.92").split('.');
+    animateValue("cc-pressure1", 0, pressureArray[0] || "29", 1400, 1);
+    animateValue("cc-pressure2", 0, pressureArray[1] || "92", 1400, 2);
+  }
 }
 
 // Called at end of sequence. Animates everything out and shows ending text
@@ -566,6 +740,10 @@ function clearElements(){
 
   if (window.TTSNarration) {
     TTSNarration.cancel();
+  }
+
+  if (typeof window.setMusicVolume === 'function') {
+    window.setMusicVolume(0, 1500);
   }
 
   showEnding();
@@ -638,7 +816,7 @@ function resetVisualState(){
   // CRITICAL FIX: Pages slide from left: 100%, top: 0px!
   var pages = [
     'current-page', 'radar-page', 'zoomed-radar-page', 'today-page',
-    'tonight-page', 'tomorrow-page', 'tomorrow-night-page', '7day-page',
+    'tonight-page', 'tomorrow-page', 'tomorrow-night-page', 'almanac-page', '7day-page',
     'single-alert-page', 'multiple-alerts-page', 'headend-id-page'
   ];
   pages.forEach(p => {
@@ -649,6 +827,12 @@ function resetVisualState(){
       el.style.top = '0px';
     }
   });
+
+  // Reset vertical groups for CC
+  var ccElements = document.querySelectorAll(".cc-vertical-group");
+  for (var i = 0; i < ccElements.length; i++) {
+    ccElements[i].style.top = '80px';
+  }
 
   // Reset greeting page components
   var gp = getElement("greeting-page");
@@ -679,6 +863,10 @@ function resetVisualState(){
     try { activeRadarMap.remove(); } catch(e){}
     activeRadarMap = null;
   }
+  if (activeZoomedRadarMap) {
+    try { activeZoomedRadarMap.remove(); } catch(e){}
+    activeZoomedRadarMap = null;
+  }
 
   if (typeof NationalTicker !== 'undefined' && NationalTicker.stop) {
     NationalTicker.stop();
@@ -691,12 +879,15 @@ function resetVisualState(){
 
 function restartSequenceInMemory(){
   resetVisualState();
+  if (typeof NationalTicker !== 'undefined' && NationalTicker.startRotation) {
+    NationalTicker.startRotation();
+  }
   preLoadMusic();
   fetchCurrentWeather();
 }
 
 function loadInfoBar(){
-  ['infobar-local-logo', 'infobar-location-container', 'infobar-time-container'].forEach(id => {
+  ['infobar-twc-logo', 'infobar-local-logo', 'infobar-location-container'].forEach(id => {
     var el = getElement(id);
     if (el) {
       el.classList.remove('hidden');
@@ -916,6 +1107,10 @@ async function hotReloadPresentation() {
   hideSettings();
   if (window.TTSNarration) {
     TTSNarration.cancel();
+  }
+
+  if (typeof window.setMusicVolume === 'function') {
+    window.setMusicVolume(0, 1500);
   }
   resetVisualState();
   await fetchCurrentWeather();

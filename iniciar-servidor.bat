@@ -1,4 +1,5 @@
 @echo off
+cd /d "%~dp0"
 title IntelliStar 2 XD - Servidor Local Node.js
 color 0B
 echo ============================================================
@@ -15,9 +16,8 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-echo Iniciando servidor en segundo plano...
-start "" http://localhost:8080
+echo Iniciando servidor local...
+start "" cmd /c "timeout /t 1 /nobreak >nul & start http://localhost:8080"
 node server.js
 
 pause
-

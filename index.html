@@ -24,10 +24,12 @@
   <link rel="stylesheet" type="text/css" href="css/timeline.css">
   <link rel="stylesheet" type="text/css" href="css/amazing.css">
   <link rel="stylesheet" type="text/css" href="css/updated.css">
+  <link rel="stylesheet" type="text/css" href="css/almanac.css">
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="js/Conditions.js"></script>
   <script src="js/LocationSearch.js"></script>
+  <script src="js/AstronomicalAlmanac.js"></script>
   <script src="js/WeatherProviders.js"></script>
   <script src="js/TTSNarration.js"></script>
   <script src="js/Config.js"></script>
@@ -196,7 +198,7 @@
                 </div>
                 <div class="cc-horizontal-group">
                   <div class="regular-text cc-text cc-left">PRESSURE</div>
-                  <div class="regular-text cc-text"><span id="cc-pressure1">29</span>.<span id="cc-pressure2">92</span><span id="cc-pressuretrend">▲</span></div>
+                  <div class="regular-text cc-text"><span id="cc-pressure1">29</span><span id="cc-pressuredot">.</span><span id="cc-pressure2">92</span><span id="cc-pressuretrend">▲</span></div>
                 </div>
               </div>
             </div>
@@ -246,7 +248,7 @@
           <div class="broken-radar-text">
             <div style="color: yellow;" class="strong-text">Temporarily Unavailable</div>
           </div>
-          <div id="radar-container" style="position: absolute;">
+          <div id="radar-container" class="radar-container" style="position: absolute;">
           </div>
         </div>
       </div>
@@ -293,7 +295,7 @@
           <div class="broken-radar-text">
             <div style="color: yellow;" class="strong-text">Temporarily Unavailable</div>
           </div>
-          <div id="zoomed-radar-container" style="position: absolute;"></div>
+          <div id="zoomed-radar-container" class="radar-container" style="position: absolute;"></div>
         </div>
       </div>
 
@@ -375,7 +377,7 @@
           <div id="outlook-titlebar" class="page-title-bar regular-text">7 Day Forecast</div>
         </div>
         <div class="page-content-container">
-          <div id="forecast-left-container" class="forecast-container forecast">
+          <div id="forecast-left-container" class="forecast-container forecast-left">
             <div id="day0-container" class="outlook-day day-spacing">
               <div id="day0-text" class="strong-text day-text">&nbsp;</div>
               <div id="day0-icon" class="day-icon">&nbsp;</div>
@@ -430,6 +432,95 @@
           </div>
         </div>
       </div>
+
+      <!-- Almanac Page (Official IntelliStar 2 XD Broadcast Layout) -->
+      <div id="almanac-page" class="page-container regular-page-container">
+        <div>
+          <div class="page-title-bar regular-text">Almanac</div>
+        </div>
+        <div class="page-content-container almanac-content-container">
+          <!-- Top Block: Solar Info (Hoy y Mañana) -->
+          <div class="almanac-sun-card shaded-page-content">
+            <div class="almanac-sun-col">
+              <div class="almanac-col-title strong-text" id="almanac-today-title">TODAY</div>
+              <div class="almanac-sun-row">
+                <img src="assets/icons/almanac/sunrise.svg" class="almanac-sun-icon" alt="Sunrise" />
+                <div class="almanac-sun-data">
+                  <span class="almanac-sun-label regular-text" id="almanac-sr-label-today">Sunrise</span>
+                  <span class="almanac-sun-time strong-text" id="almanac-today-sunrise">--:--</span>
+                </div>
+              </div>
+              <div class="almanac-sun-row">
+                <img src="assets/icons/almanac/sunset.svg" class="almanac-sun-icon" alt="Sunset" />
+                <div class="almanac-sun-data">
+                  <span class="almanac-sun-label regular-text" id="almanac-ss-label-today">Sunset</span>
+                  <span class="almanac-sun-time strong-text" id="almanac-today-sunset">--:--</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="almanac-sun-divider"></div>
+
+            <div class="almanac-sun-col">
+              <div class="almanac-col-title strong-text" id="almanac-tomorrow-title">TOMORROW</div>
+              <div class="almanac-sun-row">
+                <img src="assets/icons/almanac/sunrise.svg" class="almanac-sun-icon" alt="Sunrise" />
+                <div class="almanac-sun-data">
+                  <span class="almanac-sun-label regular-text" id="almanac-sr-label-tomorrow">Sunrise</span>
+                  <span class="almanac-sun-time strong-text" id="almanac-tomorrow-sunrise">--:--</span>
+                </div>
+              </div>
+              <div class="almanac-sun-row">
+                <img src="assets/icons/almanac/sunset.svg" class="almanac-sun-icon" alt="Sunset" />
+                <div class="almanac-sun-data">
+                  <span class="almanac-sun-label regular-text" id="almanac-ss-label-tomorrow">Sunset</span>
+                  <span class="almanac-sun-time strong-text" id="almanac-tomorrow-sunset">--:--</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Block: Lunar Phases Horizontal Strip -->
+          <div class="almanac-moon-strip">
+            <!-- Phase 0: Luna Nueva -->
+            <div class="almanac-moon-card shaded-page-content" id="almanac-moon-card-0">
+              <div class="almanac-moon-icon-wrapper">
+                <img src="assets/icons/almanac/moon-new.svg" class="almanac-moon-icon" id="almanac-moon-icon-0" alt="New Moon" />
+              </div>
+              <div class="almanac-moon-name strong-text" id="almanac-moon-name-0">Luna Nueva</div>
+              <div class="almanac-moon-date regular-text" id="almanac-moon-date-0">--</div>
+            </div>
+
+            <!-- Phase 1: Cuarto Creciente -->
+            <div class="almanac-moon-card shaded-page-content" id="almanac-moon-card-1">
+              <div class="almanac-moon-icon-wrapper">
+                <img src="assets/icons/almanac/moon-first-quarter.svg" class="almanac-moon-icon" id="almanac-moon-icon-1" alt="First Quarter" />
+              </div>
+              <div class="almanac-moon-name strong-text" id="almanac-moon-name-1">Creciente</div>
+              <div class="almanac-moon-date regular-text" id="almanac-moon-date-1">--</div>
+            </div>
+
+            <!-- Phase 2: Luna Llena -->
+            <div class="almanac-moon-card shaded-page-content" id="almanac-moon-card-2">
+              <div class="almanac-moon-icon-wrapper">
+                <img src="assets/icons/almanac/moon-full.svg" class="almanac-moon-icon" id="almanac-moon-icon-2" alt="Full Moon" />
+              </div>
+              <div class="almanac-moon-name strong-text" id="almanac-moon-name-2">Luna Llena</div>
+              <div class="almanac-moon-date regular-text" id="almanac-moon-date-2">--</div>
+            </div>
+
+            <!-- Phase 3: Cuarto Menguante -->
+            <div class="almanac-moon-card shaded-page-content" id="almanac-moon-card-3">
+              <div class="almanac-moon-icon-wrapper">
+                <img src="assets/icons/almanac/moon-last-quarter.svg" class="almanac-moon-icon" id="almanac-moon-icon-3" alt="Last Quarter" />
+              </div>
+              <div class="almanac-moon-name strong-text" id="almanac-moon-name-3">Menguante</div>
+              <div class="almanac-moon-date regular-text" id="almanac-moon-date-3">--</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Headend Identification Screen (Official IntelliStar 2 XD Broadcast Layout) -->
       <div id="headend-id-page" class="page-container regular-page-container">
         <!-- Official Top Header Bar -->
@@ -452,6 +543,7 @@
             <div id="headend-id-text" class="headend-station-id">Local weather ID: n/a</div>
             
             <div class="headend-provider-block">
+              <img id="headend-provider-logo" class="headend-provider-logo" style="display: none;" alt="Provider Logo" />
               <div id="headend-provider-text" class="headend-provider-name">Spectrum <span class="headend-arrow">▶</span></div>
               <div id="headend-channel-text" class="headend-channel-num">HD channel 211</div>
             </div>

@@ -176,16 +176,19 @@
   color: white;
 }
 
-.button{
+.settings-button, .button{
   transition: 150ms background-color, 150ms transform, 150ms box-shadow;
   cursor: pointer;
   border: none;
   border-radius: 6px;
   font-weight: bold;
+  background: #253346;
+  color: #ffffff;
 }
 
-.button:hover{
+.settings-button:hover, .button:hover{
   transform: translateY(-1px);
+  background: #3b82f6;
 }
 
 #submit-button{

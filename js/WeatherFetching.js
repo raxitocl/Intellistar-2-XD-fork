@@ -52,7 +52,10 @@ async function fetchCurrentWeather() {
       await WeatherProviders.OpenMeteoProvider.fetch(latitude, longitude, CONFIG.units);
     } catch (fallbackErr) {
       console.error("Error crítico: el proveedor de respaldo también falló:", fallbackErr);
-      if (window.showApiToast) window.showApiToast("Error al obtener información meteorológica de todos los proveedores.", "error");
+      if (window.showApiToast) {
+        window.showApiToast("Error al obtener información meteorológica. Reintentando en 30s...", "error");
+      }
+      setTimeout(fetchCurrentWeather, 30000);
       return;
     }
   }
