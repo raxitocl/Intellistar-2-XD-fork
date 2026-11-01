@@ -21,9 +21,11 @@ Aplicación web y de escritorio que emula la presentación gráfica y sonora del
   - **Prevención de Recolección de Basura en Locución TTS:** Retención en memoria de la instancia `SpeechSynthesisUtterance` en `window._activeUtterance` para impedir que el motor V8 de Chromium/Electron destruya la voz a mitad de frase.
 
 - **Nueva Pantalla de Almanaque Astronómico (`almanac-page` - 15 Segundos):**
-  - Incorporación de la diapositiva oficial de almanaque situada entre el pronóstico extendido (`7day-page`) y la cabecera (`headend-id-page`), con duración de 15 segundos y representada en la línea de tiempo por el icono oficial `assets/timeline/almanac.svg`.
-  - Diseño apilado vertical (Vertical Stacked Layout): bloque superior solar con horas de amanecer y atardecer para hoy y mañana (Open-Meteo/TWC con respaldo solar NOAA de alta precisión) acompañadas de iconos animados `sunrise.svg` y `sunset.svg`; y bloque inferior con franja horizontal de 4 tarjetas de fases lunares (Luna Nueva, Cuarto Creciente, Luna Llena y Cuarto Menguante) con iconos vectoriales Meteocons Astronomical y fechas exactas calculadas mediante el algoritmo astronómico de Jean Meeus.
+  - Incorporación de la diapositiva oficial de almanaque situada entre el pronóstico extendido (`7day-page`) y la cabecera (`headend-id-page`), con duración de 15 segundos y representada en la línea de tiempo por el icono de calendario oficial `assets/timeline/calendar.svg`.
+  - Estética 100% auténtica broadcast con celdas rectangulares planas `.shaded-page-content` (`rgba(0, 0, 0, 0.25)`), fondo opaco `#1a2634` (eliminando transparencias residuales con la diapositiva previa de 7 días), sin bordes redondeados modernos y sin badges artificiales de cápsula.
+  - Bloque superior solar plano: amanecer y atardecer para hoy y mañana (Open-Meteo/TWC con respaldo solar NOAA de alta precisión) con tipografía televisiva nítida; y bloque inferior con franja horizontal de 4 celdas de fases lunares idénticas a las columnas de `.outlook-day` de 7 días (Luna Nueva, Cuarto Creciente, Luna Llena y Cuarto Menguante) con iconos vectoriales Meteocons Astronomical y fechas en texto plano calculadas mediante el algoritmo astronómico de Jean Meeus.
   - Locución vocal TTS concisa al ingreso (_"A continuación, el almanaque astronómico local para hoy y mañana"_ / _"Here is your local astronomical almanac"_), manteniendo el resto de los 15 segundos con la música ambiental de fondo.
+  - Desacoplamiento estricto de transiciones: ocultamiento forzado de `7day-page` al entrar a `almanac-page` y retirada de `headend-id-page` y `almanac-page` antes de `showEnding()`, impidiendo cualquier superposición con `#ItsAmazingOutThere`.
 
 - **Personalización del Logotipo del Proveedor en Pantalla de Cabecera:**
   - Nueva sección en el panel de configuración con selector de archivo de imagen local `.png` con fondo transparente y conversión automática a Base64 en `localStorage` (`customProviderLogo`).
@@ -33,19 +35,27 @@ Aplicación web y de escritorio que emula la presentación gráfica y sonora del
 
 - **Radar Dual Esri Libre por Defecto + Respaldo CARTO con Clave API:**
   - Mapa base predeterminado 100% público y libre de cuotas: **Esri World Dark Gray Base**, eliminando cualquier solicitud o bloqueo de claves API en el radar.
-  - Respaldo opcional para CARTO: campo configurable `CARTO API Key` en Opciones Avanzadas; si se ingresa una clave se utiliza CARTO Dark con conmutación tolerante a Esri en caso de error en los tiles (`tileerror`).
+  - Respaldo oficial para CARTO: campo configurable `CARTO API Key` en Opciones Avanzadas; utiliza el parámetro oficial `?key=` (con respaldo `&api_key=`) eliminando de forma definitiva la marca de agua "API KEY REQUIRED", con conmutación tolerante a Esri en caso de fallo en los mosaicos (`tileerror`).
   - Capa Doppler en vivo de RainViewer combinada con capa superior de referencias y fronteras geográficas **Esri World Dark Gray Reference** (`zIndex: 20`).
 
-- **Barra Superior Acoplada (Top InfoBar sin Reloj):**
+- **Restauración Geométrica y Eliminación de Solapamiento de Pantallas:**
+  - Corrección de la deformación causada por la inyección inline de `display: flex` en `executePage()`; ahora las pantallas recuperan su `display` CSS nativo (`display: block` para `current-page`, `today-page`, `radar-page` y `7day-page`; `display: flex; flex-direction: column;` para `almanac-page` y `headend-id-page`).
+  - La barra de título de cada pantalla vuelve a ocupar el 100% del ancho superior de la tarjeta (`1235px`), eliminando su desplazamiento a una columna lateral.
+  - Rebalanceo semántico del dial y los datos del clima en `#current-page`: sustitución de `<div style="width: 300px;">` por `.cc-dial-wrapper` de 480px, `#cc-dial` de 440px y `#cc-container` de 700px.
+  - Margen de seguridad limpio de 66px a 75px entre el dial de temperatura y las métricas meteorológicas (`VISIBILITY`, `WIND`, `HUMIDITY`, etc.), asegurando cero colisiones y una fidelidad visual broadcast 1:1.
+
+- **Barra Superior Acoplada (Top InfoBar sin Reloj y Desaparición al Cierre):**
   - Reubicación de `#infobar-container` en `top: 130px; height: 95px; width: 1235px; left: 150px; z-index: 50;` acoplándose con precisión matemática sobre el marco de contenido principal (`top: 225px`).
   - Despliegue de logotipos oficiales (The Weather Channel y Local on the 8s) y nombre de la ciudad activa.
   - Ocultamiento permanente del reloj digital superior (`#infobar-time-container { display: none !important; }`) para evitar duplicación con el reloj del Lower Third.
+  - Desaparición animada al cierre (`#infobar-container.hidden { top: -110px; opacity: 0; }`) coordinada con la pantalla final `#ItsAmazingOutThere`.
 
-- **Audio Broadcast Continuo y Locución TTS Garantizada:**
-  - Desbloqueador de audio (`AudioUnlocker`) que captura el primer gesto del usuario (`pointerdown` o `keydown`) si la directiva de autoplay del navegador interrumpe el jingle de inicio.
-  - Reproducción continua sin cortes prematuros con `music.loop = true;` y fade-out suave de volumen (`setMusicVolume(0, 1500)`) al concluir la secuencia.
-  - Intro silenciosa de locución: eliminación de diálogo vocal en la pantalla de bienvenida (`executeGreetingPage`), reservando los primeros 6.5s a la fanfarria instrumental del jingle.
-  - Generación de narrativa natural en español para los pronósticos de hoy, esta noche, mañana y mañana por la noche, asegurando diálogo vocal fluido.
+- **Audio Broadcast Secuencial y Recarga Limpia de Configuración:**
+  - Secuencia estricta de pistas de audio: arranque de la fanfarria instrumental `jingle.wav` y transición encadenada a la música de fondo al concluir el jingle (`jingle.onended`), evitando cualquier superposición sonora al desbloquear la autoreproducción con un clic.
+  - Desbloqueador de audio inteligente: si la directiva de autoplay bloquea el audio, el primer gesto del usuario solo desbloquea el jingle pendiente; la música de fondo no iniciará hasta que este concluya.
+  - Método de guardado de configuración **"Aplicar y Actualizar"**: persistencia instantánea de todos los parámetros en `localStorage` seguida de recarga completa (`window.location.reload()`), garantizando arranque limpio sin timers o estados residuales en memoria.
+  - Línea de tiempo inferior protegida con `flex-wrap: nowrap; width: 5000px;`, garantizando la visualización nítida y continua de los títulos e iconos de Almanaque (`calendar.svg`) y Headend ID (`8logo.svg`).
+  - Supresión de parpadeo de pantallas inactivas: las pantallas de alerta no emitidas permanecen en `display: none` y coordenadas nativas (`top: 101%; left: 0px`), evitando que vuelen por la pantalla durante el reinicio en bucle.
   - Extensión de la duración de `headend-id-page` a 9.5 segundos con frase concisa para garantizar que el locutor concluya el 100% de su mensaje antes de la salida.
 
 - **Restauración Auténtica de Pantalla de Inicio (Intro + Crawl Sincrónico):**
@@ -199,3 +209,15 @@ Ideal para visualizar en navegador web o transmitir a otros dispositivos en tu r
   npm start
   ```
 - Accede desde tu navegador en: `http://localhost:8080` (o la IP local mostrada en consola).
+
+---
+
+## 🛡️ Motor de Resiliencia y Arranque Broadcast Infalible
+
+Para emular la robustez ininterrumpida de una unidad de cabecera por cable IntelliStar 2 XD de The Weather Channel (emisión 24/7 sin bloqueos):
+
+1. **Autocorrección de Perfiles Geográficos:** Si `localStorage` contiene un objeto de ubicación vacío o con coordenadas numéricas no válidas (`NaN`, `null`, `undefined`), `CONFIG.boot()` conmuta de inmediato a las coordenadas de contingencia (Santiago de Chile) garantizando el arranque.
+2. **Timeouts en Red con `AbortController`:** Todas las consultas a APIs meteorológicas (`WeatherProviders.fetchWithTimeout`) implementan un tiempo límite de 7 segundos. Si un servicio se demora o se cuelga, la solicitud se cancela y conmuta automáticamente al proveedor secundario.
+3. **Pronóstico Local de Contingencia:** En caso de corte total de Internet o caída simultánea de proveedores primarios y de respaldo, se genera un pronóstico seguro de contingencia para que la presentación inicie la intro y el carrusel de inmediato sin quedarse congelada en la pantalla de reposo.
+4. **Blindaje de Módulos:** Cada llamada de preparación en `setInformation()` está protegida individualmente con bloques `try / catch` para que cualquier discrepancia en un subcomponente no impida la ejecución de la animación.
+5. **Arranque Dual `DOMContentLoaded` + `load`:** El ciclo de vida de la aplicación no depende del retardo de recursos externos CDN, iniciando en cuanto la estructura DOM está lista.

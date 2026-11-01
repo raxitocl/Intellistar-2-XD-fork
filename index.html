@@ -121,7 +121,7 @@
           <div class="page-title-bar regular-text">Now</div>
         </div>
         <div class="page-content-container shaded-page-content">
-          <div style="width: 300px; float: left;">
+          <div id="cc-dial-wrapper" class="cc-dial-wrapper">
             <svg id="cc-dial" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 77.13 77.13">
               <defs>
                 <style>
@@ -439,51 +439,53 @@
           <div class="page-title-bar regular-text">Almanac</div>
         </div>
         <div class="page-content-container almanac-content-container">
-          <!-- Top Block: Solar Info (Hoy y Mañana) -->
-          <div class="almanac-sun-card shaded-page-content">
-            <div class="almanac-sun-col">
+          <!-- Top Block: Solar Info (Hoy y Mañana en Celdas Planas Broadcast) -->
+          <div class="almanac-sun-strip">
+            <div class="almanac-sun-cell shaded-page-content">
               <div class="almanac-col-title strong-text" id="almanac-today-title">TODAY</div>
-              <div class="almanac-sun-row">
-                <img src="assets/icons/almanac/sunrise.svg" class="almanac-sun-icon" alt="Sunrise" />
-                <div class="almanac-sun-data">
-                  <span class="almanac-sun-label regular-text" id="almanac-sr-label-today">Sunrise</span>
-                  <span class="almanac-sun-time strong-text" id="almanac-today-sunrise">--:--</span>
+              <div class="almanac-sun-rows">
+                <div class="almanac-sun-row">
+                  <img src="assets/icons/almanac/sunrise.svg" class="almanac-sun-icon" alt="Sunrise" />
+                  <div class="almanac-sun-data">
+                    <span class="almanac-sun-label regular-text" id="almanac-sr-label-today">Sunrise</span>
+                    <span class="almanac-sun-time strong-text" id="almanac-today-sunrise">--:--</span>
+                  </div>
                 </div>
-              </div>
-              <div class="almanac-sun-row">
-                <img src="assets/icons/almanac/sunset.svg" class="almanac-sun-icon" alt="Sunset" />
-                <div class="almanac-sun-data">
-                  <span class="almanac-sun-label regular-text" id="almanac-ss-label-today">Sunset</span>
-                  <span class="almanac-sun-time strong-text" id="almanac-today-sunset">--:--</span>
+                <div class="almanac-sun-row">
+                  <img src="assets/icons/almanac/sunset.svg" class="almanac-sun-icon" alt="Sunset" />
+                  <div class="almanac-sun-data">
+                    <span class="almanac-sun-label regular-text" id="almanac-ss-label-today">Sunset</span>
+                    <span class="almanac-sun-time strong-text" id="almanac-today-sunset">--:--</span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div class="almanac-sun-divider"></div>
-
-            <div class="almanac-sun-col">
+            <div class="almanac-sun-cell shaded-page-content">
               <div class="almanac-col-title strong-text" id="almanac-tomorrow-title">TOMORROW</div>
-              <div class="almanac-sun-row">
-                <img src="assets/icons/almanac/sunrise.svg" class="almanac-sun-icon" alt="Sunrise" />
-                <div class="almanac-sun-data">
-                  <span class="almanac-sun-label regular-text" id="almanac-sr-label-tomorrow">Sunrise</span>
-                  <span class="almanac-sun-time strong-text" id="almanac-tomorrow-sunrise">--:--</span>
+              <div class="almanac-sun-rows">
+                <div class="almanac-sun-row">
+                  <img src="assets/icons/almanac/sunrise.svg" class="almanac-sun-icon" alt="Sunrise" />
+                  <div class="almanac-sun-data">
+                    <span class="almanac-sun-label regular-text" id="almanac-sr-label-tomorrow">Sunrise</span>
+                    <span class="almanac-sun-time strong-text" id="almanac-tomorrow-sunrise">--:--</span>
+                  </div>
                 </div>
-              </div>
-              <div class="almanac-sun-row">
-                <img src="assets/icons/almanac/sunset.svg" class="almanac-sun-icon" alt="Sunset" />
-                <div class="almanac-sun-data">
-                  <span class="almanac-sun-label regular-text" id="almanac-ss-label-tomorrow">Sunset</span>
-                  <span class="almanac-sun-time strong-text" id="almanac-tomorrow-sunset">--:--</span>
+                <div class="almanac-sun-row">
+                  <img src="assets/icons/almanac/sunset.svg" class="almanac-sun-icon" alt="Sunset" />
+                  <div class="almanac-sun-data">
+                    <span class="almanac-sun-label regular-text" id="almanac-ss-label-tomorrow">Sunset</span>
+                    <span class="almanac-sun-time strong-text" id="almanac-tomorrow-sunset">--:--</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Bottom Block: Lunar Phases Horizontal Strip -->
+          <!-- Bottom Block: Lunar Phases Horizontal Strip (Estilo Idéntico a .outlook-day) -->
           <div class="almanac-moon-strip">
             <!-- Phase 0: Luna Nueva -->
-            <div class="almanac-moon-card shaded-page-content" id="almanac-moon-card-0">
+            <div class="almanac-moon-cell shaded-page-content" id="almanac-moon-card-0">
               <div class="almanac-moon-icon-wrapper">
                 <img src="assets/icons/almanac/moon-new.svg" class="almanac-moon-icon" id="almanac-moon-icon-0" alt="New Moon" />
               </div>
@@ -492,7 +494,7 @@
             </div>
 
             <!-- Phase 1: Cuarto Creciente -->
-            <div class="almanac-moon-card shaded-page-content" id="almanac-moon-card-1">
+            <div class="almanac-moon-cell shaded-page-content" id="almanac-moon-card-1">
               <div class="almanac-moon-icon-wrapper">
                 <img src="assets/icons/almanac/moon-first-quarter.svg" class="almanac-moon-icon" id="almanac-moon-icon-1" alt="First Quarter" />
               </div>
@@ -501,7 +503,7 @@
             </div>
 
             <!-- Phase 2: Luna Llena -->
-            <div class="almanac-moon-card shaded-page-content" id="almanac-moon-card-2">
+            <div class="almanac-moon-cell shaded-page-content" id="almanac-moon-card-2">
               <div class="almanac-moon-icon-wrapper">
                 <img src="assets/icons/almanac/moon-full.svg" class="almanac-moon-icon" id="almanac-moon-icon-2" alt="Full Moon" />
               </div>
@@ -510,7 +512,7 @@
             </div>
 
             <!-- Phase 3: Cuarto Menguante -->
-            <div class="almanac-moon-card shaded-page-content" id="almanac-moon-card-3">
+            <div class="almanac-moon-cell shaded-page-content" id="almanac-moon-card-3">
               <div class="almanac-moon-icon-wrapper">
                 <img src="assets/icons/almanac/moon-last-quarter.svg" class="almanac-moon-icon" id="almanac-moon-icon-3" alt="Last Quarter" />
               </div>

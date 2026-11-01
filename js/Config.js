@@ -47,8 +47,14 @@ window.CONFIG = {
       } catch (e) {}
     }
 
-    // Ubicación de fábrica predeterminada si no hay ninguna previa
-    if (!CONFIG.selectedLocation) {
+    const isValidLocation = (loc) => {
+      return loc && typeof loc === 'object' &&
+        typeof loc.lat === 'number' && !isNaN(loc.lat) && isFinite(loc.lat) &&
+        typeof loc.lon === 'number' && !isNaN(loc.lon) && isFinite(loc.lon);
+    };
+
+    // Ubicación de fábrica predeterminada si no hay ninguna previa o si contiene datos corruptos/inválidos
+    if (!isValidLocation(CONFIG.selectedLocation)) {
       CONFIG.selectedLocation = {
         label: "Santiago, Región Metropolitana, Chile",
         city: "Santiago",
@@ -232,11 +238,15 @@ window.CONFIG = {
       localStorage.setItem('secondaryTickerText', CONFIG.secondaryTickerText);
     }
 
-    // Aplicar cambios en caliente
-    hideSettings();
-    if (typeof hotReloadPresentation === 'function') {
-      hotReloadPresentation();
+    // Guardar configuraciones y actualizar la página por completo
+    if (btn) {
+      try {
+        btn.disabled = true;
+        btn.innerText = 'Aplicando y actualizando...';
+      } catch (e) {}
     }
+    hideSettings();
+    window.location.reload();
   },
 
   load: () => {
@@ -873,13 +883,13 @@ window.CONFIG = {
     };
     content.appendChild(advBtn);
 
-    // Botón Guardar y Aplicar en Caliente
+    // Botón Guardar y Aplicar (Actualizar Página)
     const startBtn = document.createElement('button');
     startBtn.type = 'button';
     startBtn.id = 'submit-button';
     startBtn.classList.add('settings-item', 'button');
-    startBtn.innerText = 'Guardar y Aplicar en Caliente';
-    startBtn.onclick = CONFIG.submit;
+    startBtn.innerText = 'Aplicar y Actualizar';
+    startBtn.onclick = (e) => CONFIG.submit(startBtn, e);
     content.appendChild(startBtn);
 
     // Vincular botón cerrar del Drawer

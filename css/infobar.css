@@ -13,6 +13,7 @@
   background: rgba(10, 18, 28, 0.85);
   backdrop-filter: blur(8px);
   box-sizing: border-box;
+  transition: top 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s;
 }
 
 #infobar-twc-logo{
@@ -87,4 +88,10 @@
 #infobar-time-container.hidden{
   transition-delay: 300ms;
   top: -100%;
+}
+
+#infobar-container.hidden{
+  top: -110px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }

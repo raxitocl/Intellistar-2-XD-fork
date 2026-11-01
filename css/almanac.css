@@ -2,6 +2,10 @@
  * almanac.css
  * Estilos broadcast profesionales para la pantalla de Almanaque Astronómico (almanac-page)
  * IntelliStar 2 XD - The Weather Channel Local on the 8s
+ *
+ * Estética 100% auténtica: celdas planas .shaded-page-content (rgba(0, 0, 0, 0.25)),
+ * sin bordes redondeados modernos, sin sombras flotantes y sin badges cyan artificiales.
+ * Fondo sólido opaco #1a2634 idéntico a headend-id-page para evitar cualquier traslúcido.
  */
 
 #almanac-page {
@@ -13,63 +17,67 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: left 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+  background-color: #1a2634; /* Fondo 100% opaco para aislar la diapositiva previa */
+  transition: left 0.7s, top 0.7s;
 }
 
 .almanac-content-container {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  padding: 16px 20px;
+  gap: 8px;
+  width: 100%;
+  height: 525px;
   box-sizing: border-box;
-  height: calc(100% - 65px);
 }
 
 /* ========================================================
    1. BLOQUE SUPERIOR: INFORMACIÓN SOLAR (HOY Y MAÑANA)
    ======================================================== */
-.almanac-sun-card {
+.almanac-sun-strip {
   display: flex;
   flex-direction: row;
-  align-items: center;
-  justify-content: space-around;
-  padding: 18px 24px;
-  border-radius: 10px;
-  background: linear-gradient(180deg, rgba(14, 25, 42, 0.82) 0%, rgba(9, 16, 28, 0.9) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
-  flex: 1;
+  gap: 8px;
+  width: 100%;
+  height: 200px;
 }
 
-.almanac-sun-col {
+.almanac-sun-cell {
+  flex: 1;
+  background-color: rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  flex: 1;
-  padding: 0 16px;
+  padding: 14px 24px;
+  box-sizing: border-box;
 }
 
 .almanac-col-title {
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: 2px;
-  color: #60a5fa;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #ffffff;
   text-transform: uppercase;
-  border-bottom: 2px solid rgba(96, 165, 250, 0.35);
-  padding-bottom: 6px;
-  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding-bottom: 4px;
+  margin-bottom: 12px;
+}
+
+.almanac-sun-rows {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  flex: 1;
 }
 
 .almanac-sun-row {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 
 .almanac-sun-icon {
-  width: 54px;
-  height: 54px;
-  filter: drop-shadow(0 2px 8px rgba(255, 180, 0, 0.45));
+  width: 52px;
+  height: 52px;
   flex-shrink: 0;
 }
 
@@ -79,91 +87,75 @@
 }
 
 .almanac-sun-label {
-  font-size: 15px;
-  color: rgba(226, 232, 240, 0.8);
+  font-size: 18px;
+  color: #c7d8eb;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  font-weight: 500;
 }
 
 .almanac-sun-time {
-  font-size: 26px;
-  font-weight: 800;
+  font-size: 38px;
+  font-weight: 700;
   color: #ffffff;
-  letter-spacing: 1px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
-}
-
-.almanac-sun-divider {
-  width: 2px;
-  height: 80%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(96, 165, 250, 0.4), rgba(255, 255, 255, 0.05));
-  margin: 0 12px;
+  letter-spacing: 0.5px;
+  line-height: 1.1;
 }
 
 /* ========================================================
    2. BLOQUE INFERIOR: FRANJA DE FASES LUNARES HORIZONTAL
+   Estética idéntica a .outlook-day de 7day-page
    ======================================================== */
 .almanac-moon-strip {
   display: flex;
   flex-direction: row;
-  gap: 18px;
-  flex: 1;
+  gap: 8px;
+  width: 100%;
+  height: 317px;
 }
 
-.almanac-moon-card {
+.almanac-moon-cell {
   flex: 1;
+  background-color: rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 16px 12px;
-  border-radius: 10px;
-  background: linear-gradient(180deg, rgba(14, 25, 42, 0.82) 0%, rgba(9, 16, 28, 0.9) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+  padding: 16px 10px;
+  box-sizing: border-box;
   text-align: center;
-  transition: transform 0.3s ease, border-color 0.3s ease;
-}
-
-.almanac-moon-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(147, 197, 253, 0.3);
 }
 
 .almanac-moon-icon-wrapper {
-  width: 70px;
-  height: 70px;
+  width: 74px;
+  height: 74px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
 }
 
 .almanac-moon-icon {
-  width: 64px;
-  height: 64px;
-  filter: drop-shadow(0 2px 10px rgba(186, 230, 253, 0.35));
+  width: 68px;
+  height: 68px;
 }
 
 .almanac-moon-name {
-  font-size: 16px;
+  font-size: 22px;
   font-weight: 700;
-  color: #e2e8f0;
+  color: #ffffff;
   letter-spacing: 0.5px;
-  margin-bottom: 6px;
-  text-transform: capitalize;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1.2;
 }
 
 .almanac-moon-date {
-  font-size: 20px;
-  font-weight: 800;
-  color: #38bdf8;
-  letter-spacing: 1px;
-  background: rgba(14, 165, 233, 0.15);
-  padding: 3px 14px;
-  border-radius: 14px;
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  font-size: 30px;
+  font-weight: 400;
+  color: #dce7f5;
+  letter-spacing: 0.5px;
+  text-align: center;
 }
 
 /* ========================================================
@@ -178,4 +170,3 @@
   margin-bottom: 12px;
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
 }
-

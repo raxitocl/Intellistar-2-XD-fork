@@ -8,6 +8,22 @@
  */
 
 window.WeatherProviders = {
+  async fetchWithTimeout(url, options = {}, timeoutMs = 7000) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(url, { ...options, signal: controller.signal });
+      clearTimeout(timeoutId);
+      return response;
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (err.name === 'AbortError') {
+        throw new Error(`Timeout de red (${timeoutMs}ms) al consultar ${url}`);
+      }
+      throw err;
+    }
+  },
+
   degToCompass(num) {
     if (num === null || num === undefined) return "VAR";
     const val = Math.floor((num / 22.5) + 0.5);
@@ -66,14 +82,14 @@ window.WeatherProviders = {
       const unitsParam = isMetric ? "METRIC" : "IMPERIAL";
 
       const currentUrl = `https://weather.googleapis.com/v1/currentConditions:lookup?key=${apiKey}&location.latitude=${lat}&location.longitude=${lon}&unitsSystem=${unitsParam}`;
-      const currentRes = await fetch(currentUrl);
+      const currentRes = await WeatherProviders.fetchWithTimeout(currentUrl);
       if (!currentRes.ok) {
         throw new Error(`Google Weather API error (${currentRes.status}): ${await currentRes.text()}`);
       }
       const curData = await currentRes.json();
 
       const forecastUrl = `https://weather.googleapis.com/v1/forecast/days:lookup?key=${apiKey}&location.latitude=${lat}&location.longitude=${lon}&days=10&unitsSystem=${unitsParam}`;
-      const forecastRes = await fetch(forecastUrl);
+      const forecastRes = await WeatherProviders.fetchWithTimeout(forecastUrl);
       let fcData = null;
       if (forecastRes.ok) {
         fcData = await forecastRes.json();
@@ -81,7 +97,7 @@ window.WeatherProviders = {
 
       let alertData = null;
       try {
-        const alertRes = await fetch(`https://weather.googleapis.com/v1/publicAlerts:lookup?key=${apiKey}&location.latitude=${lat}&location.longitude=${lon}`);
+        const alertRes = await WeatherProviders.fetchWithTimeout(`https://weather.googleapis.com/v1/publicAlerts:lookup?key=${apiKey}&location.latitude=${lat}&location.longitude=${lon}`);
         if (alertRes.ok) alertData = await alertRes.json();
       } catch (e) {
         console.warn("No se pudieron obtener alertas de Google:", e);
@@ -240,7 +256,7 @@ window.WeatherProviders = {
       // Intentar primero One Call API 4.0
       try {
         const cur4Url = `https://api.openweathermap.org/data/4.0/onecall/current?lat=${lat}&lon=${lon}&units=${owmUnits}&lang=en&appid=${apiKey}`;
-        const cur4Res = await fetch(cur4Url);
+        const cur4Res = await WeatherProviders.fetchWithTimeout(cur4Url);
 
         if (cur4Res.ok) {
           const cur4Data = await cur4Res.json();
@@ -248,7 +264,7 @@ window.WeatherProviders = {
 
           // Obtener timeline diario (8 días)
           const tl4Url = `https://api.openweathermap.org/data/4.0/onecall/timeline/1day?lat=${lat}&lon=${lon}&cnt=8&units=${owmUnits}&lang=en&appid=${apiKey}`;
-          const tl4Res = await fetch(tl4Url);
+          const tl4Res = await WeatherProviders.fetchWithTimeout(tl4Url);
           let tl4Data = null;
           if (tl4Res.ok) {
             tl4Data = await tl4Res.json();
@@ -345,14 +361,14 @@ window.WeatherProviders = {
 
       // FALLBACK: OpenWeatherMap 2.5 (/weather y /forecast)
       const curUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=${owmUnits}&appid=${apiKey}`;
-      const curRes = await fetch(curUrl);
+      const curRes = await WeatherProviders.fetchWithTimeout(curUrl);
       if (!curRes.ok) {
         throw new Error(`OpenWeatherMap error (${curRes.status}): ${await curRes.text()}`);
       }
       const curData = await curRes.json();
 
       const fcUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=${owmUnits}&appid=${apiKey}`;
-      const fcRes = await fetch(fcUrl);
+      const fcRes = await WeatherProviders.fetchWithTimeout(fcUrl);
       if (!fcRes.ok) {
         throw new Error(`OpenWeatherMap Forecast error (${fcRes.status})`);
       }
@@ -473,7 +489,7 @@ window.WeatherProviders = {
       const unitField = isMetric ? "metric" : "imperial";
 
       const curUrl = `https://api.weather.com/v1/geocode/${lat}/${lon}/observations/current.json?language=${CONFIG.language}&units=${unitCode}&apiKey=${apiKey}`;
-      const curRes = await fetch(curUrl);
+      const curRes = await WeatherProviders.fetchWithTimeout(curUrl);
       if (!curRes.ok) {
         throw new Error(`TWC Observation error (${curRes.status})`);
       }
@@ -497,7 +513,7 @@ window.WeatherProviders = {
       currentIcon = obs.icon_code !== undefined ? obs.icon_code : 30;
 
       const fcUrl = `https://api.weather.com/v1/geocode/${lat}/${lon}/forecast/daily/10day.json?language=${CONFIG.language}&units=${unitCode}&apiKey=${apiKey}`;
-      const fcRes = await fetch(fcUrl);
+      const fcRes = await WeatherProviders.fetchWithTimeout(fcUrl);
       if (!fcRes.ok) {
         throw new Error(`TWC Forecast error (${fcRes.status})`);
       }
@@ -545,7 +561,7 @@ window.WeatherProviders = {
 
       alerts = [];
       try {
-        const alRes = await fetch(`https://api.weather.com/v1/geocode/${lat}/${lon}/alerts.json?language=${CONFIG.language}&apiKey=${apiKey}`);
+        const alRes = await WeatherProviders.fetchWithTimeout(`https://api.weather.com/v1/geocode/${lat}/${lon}/alerts.json?language=${CONFIG.language}&apiKey=${apiKey}`);
         if (alRes.ok) {
           const alData = await alRes.json();
           if (alData.alerts) {
@@ -609,7 +625,7 @@ window.WeatherProviders = {
 
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset&forecast_days=10&temperature_unit=${tempUnit}&wind_speed_unit=${windUnit}&timezone=auto`;
 
-      const res = await fetch(url);
+      const res = await WeatherProviders.fetchWithTimeout(url);
       if (!res.ok) {
         throw new Error(`Open-Meteo error (${res.status})`);
       }

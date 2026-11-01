@@ -38,7 +38,10 @@ var music;
 var activeRadarMap = null;
 var activeZoomedRadarMap = null;
 
-window.onload = function() {
+function bootEmulator() {
+  if (window._emulatorBooted) return;
+  window._emulatorBooted = true;
+
   CONFIG.load();
   preLoadMusic();
   setMainBackground();
@@ -48,7 +51,14 @@ window.onload = function() {
   // Arranque directo broadcast de inmediato (tanto en WebApp como en navegador web)
   hideSettings();
   CONFIG.boot();
-};
+}
+
+if (document.readyState === "complete" || document.readyState === "interactive") {
+  bootEmulator();
+} else {
+  document.addEventListener("DOMContentLoaded", bootEmulator);
+  window.addEventListener("load", bootEmulator);
+}
 
 function preLoadMusic(){
   if (music) {
@@ -142,28 +152,20 @@ function revealTimeline(){
 
 /* Now that all the fetched information is stored in memory, display them in the appropriate elements */
 function setInformation(){
-  setGreetingPage();
-  checkStormMusic();
-  setAlertPage();
-  setForecast();
-  setOutlook();
-  if (typeof setAlmanacPage === 'function') setAlmanacPage();
-  createLogoElements();
-  setCurrentConditions();
-  setHeadendIdPage();
-  try {
-    if (typeof setLowerThirdBar === 'function') setLowerThirdBar();
-  } catch(e) {
-    console.warn("setLowerThirdBar warning:", e);
-  }
-  try {
-    if (typeof NationalTicker !== 'undefined' && NationalTicker.init) NationalTicker.init();
-  } catch(e) {
-    console.warn("NationalTicker warning:", e);
-  }
-  setTimelineEvents();
-  setMainBackground();
-  hideSettings();
+  try { setGreetingPage(); } catch(e) { console.warn("setGreetingPage warning:", e); }
+  try { checkStormMusic(); } catch(e) { console.warn("checkStormMusic warning:", e); }
+  try { setAlertPage(); } catch(e) { console.warn("setAlertPage warning:", e); }
+  try { setForecast(); } catch(e) { console.warn("setForecast warning:", e); }
+  try { setOutlook(); } catch(e) { console.warn("setOutlook warning:", e); }
+  try { if (typeof setAlmanacPage === 'function') setAlmanacPage(); } catch(e) { console.warn("setAlmanacPage warning:", e); }
+  try { createLogoElements(); } catch(e) { console.warn("createLogoElements warning:", e); }
+  try { setCurrentConditions(); } catch(e) { console.warn("setCurrentConditions warning:", e); }
+  try { setHeadendIdPage(); } catch(e) { console.warn("setHeadendIdPage warning:", e); }
+  try { if (typeof setLowerThirdBar === 'function') setLowerThirdBar(); } catch(e) { console.warn("setLowerThirdBar warning:", e); }
+  try { if (typeof NationalTicker !== 'undefined' && NationalTicker.init) NationalTicker.init(); } catch(e) { console.warn("NationalTicker warning:", e); }
+  try { setTimelineEvents(); } catch(e) { console.warn("setTimelineEvents warning:", e); }
+  try { setMainBackground(); } catch(e) { console.warn("setMainBackground warning:", e); }
+  try { hideSettings(); } catch(e) { console.warn("hideSettings warning:", e); }
   setTimeout(startAnimation, 1000);
 }
 
@@ -223,10 +225,11 @@ function installAudioUnlocker() {
   if (window._audioUnlockerInstalled) return;
   window._audioUnlockerInstalled = true;
   var unlock = function() {
+    // Si el jingle no ha terminado, reproducir únicamente el jingle (evitar superposición)
     if (jingle && jingle.paused && !jingle.ended) {
       jingle.play().catch(function(e) { console.warn("AudioUnlocker jingle notice:", e); });
-    }
-    if (music && music.paused && !music.ended) {
+    } else if (music && music.paused && !music.ended) {
+      // Solo reproducir música si el jingle ya concluyó
       music.play().catch(function(e) { console.warn("AudioUnlocker music notice:", e); });
     }
     window.removeEventListener('pointerdown', unlock);
@@ -238,13 +241,16 @@ function installAudioUnlocker() {
 
 function startAnimation(){
   installAudioUnlocker();
+  // Encadenamiento secuencial estricto: jingle -> música de fondo
+  jingle.onended = function() {
+    startMusic();
+  };
   jingle.play().catch(e => console.warn("Jingle autoplay notice:", e));
-  setTimeout(startMusic, 5000);
   executeGreetingPage();
 }
 
 function startMusic(){
-  if (music) {
+  if (music && music.paused) {
     if (music.volume < 0.45) {
       music.volume = 0.45;
     }
@@ -303,6 +309,9 @@ function clearGreetingPage(){
   schedulePages();
   loadInfoBar();
   revealTimeline();
+  if (music && music.paused) {
+    startMusic();
+  }
 }
 
 // Set start and end times for every sub page.
@@ -409,6 +418,8 @@ function executePage(pageIndex, subPageIndex){
     currentLogoIndex++;
   }
 
+  currentSubPageElement.style.display = '';
+  void currentSubPageElement.offsetWidth;
   currentSubPageElement.style.transitionDelay = '0.5s';
   currentSubPageElement.style.left = '0px';
   currentSubPageElement.style.top = '0px';
@@ -443,6 +454,18 @@ function executePage(pageIndex, subPageIndex){
     if (window.TTSNarration) TTSNarration.speak('tomorrowNight', { narrative: getTomorrowNightNarrative() });
   }
   else if(currentSubPageName == 'almanac-page'){
+    var p7 = getElement('7day-page');
+    if (p7) {
+      p7.style.transitionDelay = '0s';
+      p7.style.left = '-101%';
+      p7.style.display = 'none';
+    }
+    var fl = getElement('forecast-left-container');
+    if (fl) fl.classList.add('hidden');
+    var fr = getElement('forecast-right-container');
+    if (fr) fr.classList.add('hidden');
+    var ot = getElement('outlook-titlebar');
+    if (ot) ot.classList.add('hidden');
     if (typeof setAlmanacPage === 'function') setAlmanacPage();
     if (window.TTSNarration) TTSNarration.speak('almanac');
   }
@@ -451,9 +474,17 @@ function executePage(pageIndex, subPageIndex){
   }
   else if(currentSubPageName == 'headend-id-page'){
     var pAlmanac = getElement('almanac-page');
-    if (pAlmanac) pAlmanac.style.left = '-101%';
+    if (pAlmanac) {
+      pAlmanac.style.transitionDelay = '0s';
+      pAlmanac.style.left = '-101%';
+      pAlmanac.style.display = 'none';
+    }
     var p7 = getElement('7day-page');
-    if (p7) p7.style.left = '-101%';
+    if (p7) {
+      p7.style.transitionDelay = '0s';
+      p7.style.left = '-101%';
+      p7.style.display = 'none';
+    }
     var fl = getElement('forecast-left-container');
     if (fl) fl.classList.add('hidden');
     var fr = getElement('forecast-right-container');
@@ -482,7 +513,11 @@ function clearPage(pageIndex, subPageIndex){
 
   if (currentSubPageName === 'almanac-page') {
     var ap = getElement('almanac-page');
-    if (ap) ap.style.left = '-101%';
+    if (ap) {
+      ap.style.transitionDelay = '0s';
+      ap.style.left = '-101%';
+      ap.style.display = 'none';
+    }
   }
 
   if (currentSubPageName === 'radar-page' || currentSubPageName === 'zoomed-radar-page') {
@@ -505,12 +540,22 @@ function clearPage(pageIndex, subPageIndex){
   }
 
   if(isLastPage){
+    if (currentSubPageElement) {
+      currentSubPageElement.style.transitionDelay = '0s';
+      currentSubPageElement.style.left = '-101%';
+      currentSubPageElement.style.display = 'none';
+    }
     endSequence();
   }
   else{
     if (currentSubPageElement) {
       currentSubPageElement.style.transitionDelay = '0s';
       currentSubPageElement.style.left = '-101%';
+      setTimeout(function() {
+        if (currentSubPageElement && currentSubPageElement.style.left === '-101%') {
+          currentSubPageElement.style.display = 'none';
+        }
+      }, 700);
     }
   }
 }
@@ -528,7 +573,7 @@ function addRadarBasemap(mapInstance) {
   var cartoKey = (CONFIG && CONFIG.secrets && CONFIG.secrets.cartoApiKey) ? CONFIG.secrets.cartoApiKey.trim() : "";
 
   if (cartoKey) {
-    var cartoUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png?api_key=' + encodeURIComponent(cartoKey);
+    var cartoUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png?api_key=' + encodeURIComponent(cartoKey);
     var cartoLayer = L.tileLayer(cartoUrl, {
       maxZoom: 18,
       subdomains: 'abcd',
@@ -537,7 +582,7 @@ function addRadarBasemap(mapInstance) {
 
     cartoLayer.on('tileerror', function() {
       console.warn("CARTO tile error. Conmutando a mapa base libre Esri World Dark Gray...");
-      mapInstance.removeLayer(cartoLayer);
+      try { mapInstance.removeLayer(cartoLayer); } catch(e) {}
       L.tileLayer(esriBaseUrl, { maxZoom: 18, zIndex: 1 }).addTo(mapInstance);
     });
 
@@ -724,6 +769,10 @@ function clearInfoBar(){
       el.classList.add('hidden');
     }
   });
+  var ibContainer = getElement('infobar-container');
+  if (ibContainer) {
+    ibContainer.classList.add('hidden');
+  }
   setTimeout(clearElements, 200);
 }
 
@@ -732,6 +781,21 @@ function clearElements(){
   getElement("outlook-titlebar").classList.add('hidden');
   getElement("forecast-left-container").classList.add('hidden');
   getElement("forecast-right-container").classList.add('hidden');
+
+  var pages = [
+    'current-page', 'radar-page', 'zoomed-radar-page', 'today-page',
+    'tonight-page', 'tomorrow-page', 'tomorrow-night-page', 'almanac-page', '7day-page',
+    'single-alert-page', 'multiple-alerts-page', 'headend-id-page'
+  ];
+  pages.forEach(p => {
+    var el = getElement(p);
+    if (el) {
+      el.style.transitionDelay = '0s';
+      el.style.left = '-101%';
+      el.style.display = 'none';
+    }
+  });
+
   getElement("content-container").classList.add("expand");
   getElement("timeline-container").style.visibility = "hidden";
 
@@ -791,9 +855,22 @@ function reloadPage(){
 function resetVisualState(){
   getElement('background-image').className = 'below-screen';
   getElement('content-container').className = '';
-  getElement('timeline-event-container').innerHTML = '';
-  getElement('progress-stack').innerHTML = '';
-  getElement('logo-stack').innerHTML = '';
+  
+  var eventContainer = getElement('timeline-event-container');
+  if (eventContainer) {
+    eventContainer.style.left = '0px';
+    eventContainer.innerHTML = '';
+  }
+  var progressStack = getElement('progress-stack');
+  if (progressStack) {
+    progressStack.style.left = '-100%';
+    progressStack.innerHTML = '';
+  }
+  var logoStack = getElement('logo-stack');
+  if (logoStack) {
+    logoStack.style.left = '0px';
+    logoStack.innerHTML = '';
+  }
   getElement('radar-container').innerHTML = '';
   getElement('zoomed-radar-container').innerHTML = '';
   getElement('timeline-container').style.visibility = 'visible';
@@ -813,7 +890,10 @@ function resetVisualState(){
   var sponsor = getElement('sponsor-banner-container');
   if (sponsor) sponsor.classList.remove('shown');
 
-  // CRITICAL FIX: Pages slide from left: 100%, top: 0px!
+  var ibContainer = getElement('infobar-container');
+  if (ibContainer) ibContainer.classList.remove('hidden');
+
+  // Ocultar todas las páginas por defecto hasta que executePage las invoque
   var pages = [
     'current-page', 'radar-page', 'zoomed-radar-page', 'today-page',
     'tonight-page', 'tomorrow-page', 'tomorrow-night-page', 'almanac-page', '7day-page',
@@ -823,8 +903,14 @@ function resetVisualState(){
     var el = getElement(p);
     if (el) {
       el.style.transitionDelay = '0s';
-      el.style.left = '100%';
-      el.style.top = '0px';
+      el.style.display = 'none';
+      if (p.indexOf('alert') !== -1) {
+        el.style.left = '0px';
+        el.style.top = '101%';
+      } else {
+        el.style.left = '100%';
+        el.style.top = '0px';
+      }
     }
   });
 
@@ -887,6 +973,8 @@ function restartSequenceInMemory(){
 }
 
 function loadInfoBar(){
+  var ibContainer = getElement('infobar-container');
+  if (ibContainer) ibContainer.classList.remove('hidden');
   ['infobar-twc-logo', 'infobar-local-logo', 'infobar-location-container'].forEach(id => {
     var el = getElement(id);
     if (el) {

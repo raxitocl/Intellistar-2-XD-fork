@@ -205,19 +205,19 @@ function setCurrentConditions(){
 function createLogoElements(){
   var logoStack = getElement('logo-stack');
   logoStack.innerHTML = '';
-  var alreadyAddedLogos = [];
+  var lastLogo = null;
   for(var p = 0; p < pageOrder.length; p++){
     for (var s = 0; s < pageOrder[p].subpages.length; s++) {
       var currentPage = getPageLogoFileName(pageOrder[p].subpages[s].name);
 
-      if(!alreadyAddedLogos.includes(currentPage)){
+      if(currentPage !== lastLogo){
         var logo = new Image();
         logo.style.width = '85px';
         logo.style.height = '85px';
         logo.style.marginRight = '20px';
         logo.src = 'assets/timeline/' + currentPage;
         logoStack.appendChild(logo);
-        alreadyAddedLogos.push(currentPage);
+        lastLogo = currentPage;
       }
     }
   }
@@ -426,10 +426,8 @@ function getPageLogoFileName(subPageName){
     case "tonight-page":
     case "tomorrow-page":
     case "tomorrow-night-page":
-      return "calendar.svg";
-
     case "almanac-page":
-      return "almanac.svg";
+      return "calendar.svg";
 
     case "7day-page":
       return "week.svg";

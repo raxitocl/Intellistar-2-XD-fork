@@ -39,12 +39,17 @@
   left: 0px;
   overflow: hidden;
   transition: left 1s .2s;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  width: 5000px;
 }
 
 .timeline-bar{
   margin-right: 5px;
   background-color: rgba(255, 255, 255, 0.25);
   width: 275px;
+  flex-shrink: 0;
   height: 100%;
   float: left;
 }
@@ -54,11 +59,13 @@
   font-size: 43px;
   line-height: 70px;
   width: 280px;
+  flex-shrink: 0;
   float: left;
   top: 100%;
   transition: top 1s;
   font-family: 'Roboto', sans-serif;
   color: #ffffff;
+  white-space: nowrap;
 }
 
 #progressbar{
@@ -74,11 +81,14 @@
 }
 
 #progress-stack{
-  width: 100%;
+  width: 5000px;
   height: 100%;
   position: relative;
   left: -100%;
   transition: left 1s .2s;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
 }
 
 #progressbar-container{
